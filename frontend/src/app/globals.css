@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Explicitly tell Tailwind where to find classes to avoid skipping in sub-directory builds */
+@source "./app/**/*.{ts,tsx}";
+@source "./components/**/*.{ts,tsx}";
+
 :root {
   --background: #F8FAFC;
   --foreground: #111827;
@@ -27,13 +31,13 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   letter-spacing: -0.01em;
 }
 
-/* Base Utility Classes */
+/* Hardened Utility Classes using standard CSS to avoid PostCSS crash */
 .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
@@ -49,4 +53,23 @@ body {
   transition: all 0.2s;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.card {
+  background-color: white;
+  border: 1px solid var(--cmtx-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-subtle);
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: white;
+  border: 1px solid var(--cmtx-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-subtle);
 }
