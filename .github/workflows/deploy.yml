@@ -43,6 +43,12 @@ jobs:
       - name: Build with Next.js
         run: npx next build
 
+      - name: Static Diagnostics
+        run: |
+          echo "Listing build output directory (frontend/out):"
+          ls -R ./out
+          touch ./out/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
