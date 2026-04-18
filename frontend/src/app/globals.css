@@ -10,7 +10,7 @@
   --cmtx-text-secondary: #6B7280;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
@@ -33,7 +33,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Utility */
+/* Base Utility Classes */
 .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
@@ -41,21 +41,12 @@ body {
 }
 
 .sidebar-link {
-  @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium;
-}
-
-.sidebar-link-active {
-  @apply bg-cmtx-blue/10 text-cmtx-blue shadow-sm;
-}
-
-.sidebar-link-inactive {
-  @apply text-cmtx-secondary hover:bg-gray-100 hover:text-cmtx-navy;
-}
-
-.card {
-  @apply bg-white border border-cmtx-border rounded-xl shadow-subtle p-6;
-}
-
-.kpi-card {
-  @apply card flex flex-col gap-2;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
