@@ -34,14 +34,12 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        with:
-          static_site_generator: next
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build with Next.js
-        run: npx next build
+        run: npm run build
 
       - name: Static Diagnostics
         run: |
