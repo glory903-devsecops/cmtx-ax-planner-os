@@ -1,8 +1,22 @@
 "use client";
 
 import React from "react";
-import { Compass, MessageSquare, Zap, Activity, Filter, Map, ChevronRight, PieChart } from "lucide-react";
+import { 
+  Compass, 
+  MessageSquare, 
+  Zap, 
+  Activity, 
+  Filter, 
+  Map, 
+  ChevronRight, 
+  PieChart, 
+  QrCode, 
+  ExternalLink,
+  Users,
+  Timer
+} from "lucide-react";
 import { clsx } from "clsx";
+import Link from "next/link";
 
 const opportunities = [
   { id: 1, title: "생산 관리 공정 보고서 자동 생성 AI", domain: "Smart Factory", intensity: 8, priority: "High", savings: "120h/mo" },
@@ -81,7 +95,7 @@ export default function AXPlanningPage() {
           </div>
 
           <div className="card space-y-6">
-              <h3 className="font-bold text-cmtx-navy text-sm flex items-center gap-2">
+              <h3 className="font-bold text-cmtx-navy text-sm uppercase tracking-wider flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-cmtx-blue" />
                 Recent Survey Feedback
               </h3>
@@ -105,52 +119,113 @@ export default function AXPlanningPage() {
           </div>
       </div>
 
-      {/* AX Opportunity Board */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-8">
-            <h3 className="font-bold text-cmtx-navy text-sm uppercase tracking-wider flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cmtx-blue" />
-                AX Opportunity Board
-            </h3>
-            <div className="flex gap-2">
-                <button className="px-3 py-1.5 border border-cmtx-border rounded-lg text-[10px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-colors">
-                    <Filter className="w-3.3 h-3.3" /> Filter Priorities
-                </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* AX Opportunity Board */}
+        <div className="lg:col-span-2 card">
+            <div className="flex items-center justify-between mb-8">
+                <h3 className="font-bold text-cmtx-navy text-sm uppercase tracking-wider flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-cmtx-blue" />
+                    AX Opportunity Board
+                </h3>
+                <div className="flex gap-2">
+                    <button className="px-3 py-1.5 border border-cmtx-border rounded-lg text-[10px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                        <Filter className="w-3.3 h-3.3" /> Filter Priorities
+                    </button>
+                </div>
             </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {opportunities.map((opp) => (
-                <div key={opp.id} className="p-5 border border-cmtx-border rounded-xl transition-all hover:shadow-xl hover:border-cmtx-blue/20 hover:-translate-y-1 group relative overflow-hidden bg-white">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-cmtx-blue opacity-50 group-hover:opacity-100 transition-opacity" />
-                    <div className="mb-4 flex justify-between items-start">
-                        <span className="text-[9px] font-black text-cmtx-blue uppercase tracking-widest bg-cmtx-blue/5 px-2 py-0.5 rounded border border-cmtx-blue/10">
-                            {opp.domain}
-                        </span>
-                        <div className={clsx(
-                            "w-2 h-2 rounded-full",
-                            opp.priority === "High" ? "bg-rose-500" : "bg-emerald-500"
-                        )} />
-                    </div>
-                    <h4 className="text-sm font-bold text-cmtx-navy mb-3 line-clamp-2 leading-snug group-hover:text-cmtx-blue transition-colors">
-                        {opp.title}
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                        <div>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Impact Score</p>
-                            <div className="flex gap-1">
-                                {[...Array(10)].map((_, i) => (
-                                    <div key={i} className={`w-1 h-3 rounded-full ${i < opp.intensity ? 'bg-cmtx-blue' : 'bg-gray-100'}`} />
-                                ))}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {opportunities.map((opp) => (
+                    <div key={opp.id} className="p-5 border border-cmtx-border rounded-xl transition-all hover:shadow-xl hover:border-cmtx-blue/20 hover:-translate-y-1 group relative overflow-hidden bg-white">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-cmtx-blue opacity-50 group-hover:opacity-100 transition-opacity" />
+                        <div className="mb-4 flex justify-between items-start">
+                            <span className="text-[9px] font-black text-cmtx-blue uppercase tracking-widest bg-cmtx-blue/5 px-2 py-0.5 rounded border border-cmtx-blue/10">
+                                {opp.domain}
+                            </span>
+                            <div className={clsx(
+                                "w-2 h-2 rounded-full",
+                                opp.priority === "High" ? "bg-rose-500" : "bg-emerald-500"
+                            )} />
+                        </div>
+                        <h4 className="text-sm font-bold text-cmtx-navy mb-3 line-clamp-1 leading-snug group-hover:text-cmtx-blue transition-colors">
+                            {opp.title}
+                        </h4>
+                        <div className="flex justify-between items-center mt-4">
+                            <div>
+                                <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Impact Score</p>
+                                <div className="flex gap-0.5">
+                                    {[...Array(10)].map((_, i) => (
+                                        <div key={i} className={`w-1 h-2 rounded-full ${i < opp.intensity ? 'bg-cmtx-blue' : 'bg-gray-100'}`} />
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Savings</p>
+                                <p className="text-[10px] font-black text-cmtx-navy">{opp.savings}</p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Time Savings</p>
-                            <p className="text-xs font-bold text-cmtx-navy">{opp.savings}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Survey Engagement Hub */}
+        <div className="card bg-slate-900 border-none relative overflow-hidden flex flex-col">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cmtx-blue/20 blur-3xl -mr-16 -mt-16" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-cmtx-blue/10 blur-2xl -ml-12 -mb-12" />
+            
+            <div className="relative space-y-6 flex-1">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-cmtx-blue/20 rounded-xl">
+                        <Users className="w-5 h-5 text-cmtx-blue" />
+                    </div>
+                    <h3 className="font-bold text-white text-sm uppercase tracking-wider">Survey Hub</h3>
+                </div>
+
+                <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-white leading-tight">직원 AX 혁신 설문 참여</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                        전 사원 대상의 보틀넥 수집 설문입니다. <br/>
+                        모바일 최적화 페이지를 통해 참여를 독려하세요.
+                    </p>
+                </div>
+
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center gap-4">
+                    <div className="w-16 h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shrink-0">
+                        <div className="grid grid-cols-4 gap-0.5 w-full h-full opacity-80">
+                            {[...Array(16)].map((_, i) => (
+                                <div key={i} className={clsx("rounded-sm", (i % 3 === 0 || i % 7 === 0) ? "bg-slate-900" : "bg-slate-200")} />
+                            ))}
                         </div>
                     </div>
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <p className="text-[10px] font-bold text-white uppercase">Live Now</p>
+                        </div>
+                        <p className="text-[11px] text-slate-400">Scan for mobile access</p>
+                    </div>
                 </div>
-            ))}
+
+                <div className="grid grid-cols-2 gap-3 pb-4">
+                    <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Responses</p>
+                        <p className="text-lg font-bold text-white">142</p>
+                    </div>
+                    <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Avg. Time</p>
+                        <p className="text-lg font-bold text-white">1m 24s</p>
+                    </div>
+                </div>
+
+                <Link 
+                    href="/survey/" 
+                    className="w-full bg-white text-cmtx-navy py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors"
+                >
+                    Launch Survey Portal
+                    <ExternalLink className="w-3 h-3" />
+                </Link>
+            </div>
         </div>
       </div>
     </div>

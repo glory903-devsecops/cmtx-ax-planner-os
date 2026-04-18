@@ -1,162 +1,249 @@
 "use client";
 
 import React, { useState } from "react";
-import { ClipboardCheck, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
-import { clsx } from "clsx";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  CheckCircle2, 
+  ChevronRight, 
+  ArrowLeft, 
+  Smartphone, 
+  UserCircle2, 
+  ShieldCheck,
+  ClipboardCheck,
+  Hash
+} from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-const randomQuestions = [
-  "현재 업무 프로세스에서 가장 많은 시간이 소요되는 단순 반복 작업은 무엇인가요?",
-  "부서 내에서 생성되는 데이터 중 디지털화가 시급하다고 느끼는 항목은?",
-  "결재나 보고 과정에서 발생하는 비효율적인 단계가 있다면?",
-  "AI가 도입된다면 본인의 업무 중 어떤 부분을 가장 먼저 대체하고 싶나요?",
-  "협업 부서와의 정보 공유 시 발생하는 가장 큰 병목 현상은?",
-];
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
-export default function SurveyPage() {
-  const [step, setStep] = useState(1); // 1: Form, 2: Success
-  const [id, setId] = useState("");
-  const [consent, setConsent] = useState(false);
-  const [error, setError] = useState("");
+const STEPS = {
+  INTRO: 0,
+  AUTH: 1,
+  QUESTION_1: 2,
+  QUESTION_2: 3,
+  SUCCESS: 4,
+};
 
-  const [questions] = useState(() => {
-    return [...randomQuestions].sort(() => 0.5 - Math.random()).slice(0, 3);
+export default function MobileSurveyPage() {
+  const [step, setStep] = useState(STEPS.INTRO);
+  const [employeeId, setEmployeeId] = useState("");
+  const [results, setResults] = useState({
+    frictionArea: "",
+    idea: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || id.length < 4) {
-      setError("올바른 직원코드를 입력해주세요.");
-      return;
-    }
-    if (!consent) {
-      setError("개인정보 활용 동의가 필요합니다.");
-      return;
-    }
-    
-    // Simulate API call
-    console.log("Submitting survey for:", id);
-    setStep(2);
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => prev - 1);
+
+  const containerVariants = {
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
   };
 
-  if (step === 2) {
-    return (
-      <div className="max-w-2xl mx-auto py-20 text-center space-y-6">
-        <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-          <CheckCircle2 className="w-10 h-10" />
-        </div>
-        <h2 className="text-3xl font-bold text-cmtx-navy">설문 제출 완료</h2>
-        <p className="text-cmtx-secondary text-lg">
-          제출해주신 소중한 의견은 CMTX AX 기획 및 업무 프로세스 개선의 핵심 기초 자료로 활용됩니다.<br/>
-          참여해주셔서 감사합니다.
-        </p>
-        <button 
-          onClick={() => window.location.href = "/"}
-          className="mt-10 px-8 py-3 bg-cmtx-navy text-white rounded-xl font-bold hover:bg-cmtx-navy/90 transition-all shadow-xl shadow-cmtx-navy/20"
-        >
-          대시보드로 돌아가기
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <div className="flex items-center gap-4 mb-10">
-        <div className="p-3 bg-cmtx-blue/10 text-cmtx-blue rounded-2xl">
-          <ClipboardCheck className="w-8 h-8" />
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold text-cmtx-navy tracking-tight">AX Friction Survey</h2>
-          <p className="text-cmtx-secondary font-medium mt-1">사내 업무 혁신을 위한 병목 지점(Friction) 발굴 설문</p>
-        </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans max-w-md mx-auto shadow-2xl relative overflow-hidden bg-white">
+      {/* Progress Bar (Mobile Style) */}
+      <div className="h-1.5 w-full bg-slate-100 flex sticky top-0 z-50">
+        <div 
+          className="h-full bg-cmtx-blue transition-all duration-500 ease-out" 
+          style={{ width: `${(step / STEPS.SUCCESS) * 100}%` }}
+        />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Verification Section */}
-        <div className="card space-y-6">
-          <div className="flex items-center gap-2 text-sm font-bold text-cmtx-navy border-b border-cmtx-border pb-4">
-             <ShieldCheck className="w-4 h-4 text-cmtx-blue" />
-             기본 정보 및 동의
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-cmtx-navy uppercase">직원코드</label>
-              <input 
-                type="text" 
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder="Ex. 20240101"
-                className="w-full px-4 py-3 rounded-lg border border-cmtx-border bg-gray-50 focus:bg-white focus:ring-2 focus:ring-cmtx-blue/20 focus:border-cmtx-blue outline-none transition-all font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="p-4 bg-slate-50 border border-cmtx-border rounded-xl space-y-3">
-            <div className="flex items-start gap-3">
-              <input 
-                type="checkbox" 
-                id="consent" 
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-gray-300 text-cmtx-blue focus:ring-cmtx-blue"
-              />
-              <label htmlFor="consent" className="text-xs leading-relaxed text-cmtx-secondary font-medium">
-                본 설문은 익명으로 처리되지 않으며, 사내 인사 정보와 결합되어 AX 기획 및 업무 프로세스 개선 목적의 분석에 활용됩니다. 개인 평가 목적으로 사용되지 않습니다.
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Question Section */}
-        <div className="card space-y-8">
-          <div className="flex items-center gap-2 text-sm font-bold text-cmtx-navy border-b border-cmtx-border pb-4">
-             <CheckCircle2 className="w-4 h-4 text-cmtx-blue" />
-             설문 항목
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <p className="text-sm font-bold text-cmtx-navy flex gap-2">
-                <span className="text-cmtx-blue">Q1.</span>
-                현재 수행 중인 업무 중 가장 비효율적이라고 느껴지는 부분에 대해 자유롭게 기술해주세요.
-              </p>
-              <textarea 
-                rows={4}
-                placeholder="업무 명칭, 소요 시간, 비효율의 원인 등을 구체적으로 적어주세요."
-                className="w-full px-4 py-3 rounded-lg border border-cmtx-border bg-gray-50 focus:bg-white focus:ring-2 focus:ring-cmtx-blue/20 focus:border-cmtx-blue outline-none transition-all font-medium text-sm"
-              />
-            </div>
-
-            {questions.map((q, idx) => (
-              <div key={idx} className="space-y-3 pt-4 border-t border-cmtx-border/50">
-                <p className="text-sm font-bold text-cmtx-navy flex gap-2">
-                  <span className="text-cmtx-blue">Q{idx + 2}.</span>
-                  {q}
-                </p>
-                <textarea 
-                  rows={2}
-                  className="w-full px-4 py-3 rounded-lg border border-cmtx-border bg-gray-50 focus:bg-white focus:ring-2 focus:ring-cmtx-blue/20 focus:border-cmtx-blue outline-none transition-all font-medium text-sm"
-                />
+      <main className="flex-1 flex flex-col px-6 py-8">
+        <AnimatePresence mode="wait">
+          {/* STEP 0: INTRO */}
+          {step === STEPS.INTRO && (
+            <motion.div 
+              key="intro"
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 flex flex-col items-center justify-center text-center space-y-8"
+            >
+              <div className="w-20 h-20 bg-cmtx-blue/10 rounded-3xl flex items-center justify-center">
+                <Smartphone className="w-10 h-10 text-cmtx-blue" />
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="space-y-3">
+                <h1 className="text-2xl font-bold text-cmtx-navy">Employee AX Survey</h1>
+                <p className="text-slate-500 text-sm leading-relaxed px-4">
+                  CMTX의 디지털 혁신(AX)을 위해 현장의 목소리를 들려주세요. <br/>
+                  모바일에서 1분이면 충분합니다.
+                </p>
+              </div>
+              <button 
+                onClick={nextStep}
+                className="w-full bg-cmtx-blue text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-cmtx-blue/20"
+              >
+                설문 시작하기
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </motion.div>
+          )}
 
-        {error && (
-          <div className="flex items-center gap-2 p-4 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold animate-pulse">
-            <AlertCircle className="w-5 h-5" />
-            {error}
-          </div>
-        )}
+          {/* STEP 1: AUTH */}
+          {step === STEPS.AUTH && (
+            <motion.div 
+              key="auth"
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 space-y-8"
+            >
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-cmtx-navy">본인 인증</h2>
+                <p className="text-sm text-slate-500">정확한 분석을 위해 사번을 입력해 주세요.</p>
+              </div>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <input 
+                    type="text"
+                    placeholder="사번 7자리 입력"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 focus:border-cmtx-blue outline-none transition-all font-mono tracking-widest text-lg"
+                  />
+                </div>
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
+                  <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                  <p className="text-[11px] text-amber-800 leading-tight">
+                    입력하신 사번은 데이터 중복 방지 및 익명화 처리를 위해서만 사용되며, 개인을 특정하여 공개되지 않습니다.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-auto pt-8 flex gap-3">
+                <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 text-slate-600"><ArrowLeft/></button>
+                <button 
+                  disabled={employeeId.length < 5}
+                  onClick={nextStep}
+                  className="flex-1 bg-cmtx-blue text-white py-4 rounded-2xl font-bold disabled:opacity-50"
+                >
+                  인증 완료
+                </button>
+              </div>
+            </motion.div>
+          )}
 
-        <button 
-          type="submit"
-          className="w-full py-4 bg-cmtx-blue text-white rounded-xl font-bold text-lg hover:bg-cmtx-blue/90 shadow-xl shadow-cmtx-blue/20 transition-all transform active:scale-[0.98]"
-        >
-          설문 제출하기
-        </button>
-      </form>
+          {/* STEP 2: QUESTION 1 */}
+          {step === STEPS.QUESTION_1 && (
+            <motion.div 
+              key="q1"
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 space-y-8"
+            >
+              <div className="space-y-2">
+                <span className="text-[10px] bg-cmtx-blue/10 text-cmtx-blue px-2 py-0.5 rounded font-bold uppercase">Topic 01</span>
+                <h2 className="text-xl font-bold text-cmtx-navy leading-snug">
+                  현재 우리 부서에서 가장 디지털화가 시급한 업무 영역은 어디인가요?
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  "단순 반복적인 문서/데이터 입력",
+                  "부서 간 복잡한 협업/승인 절차",
+                  "사내 보안 정책으로 인한 접근 제한",
+                  "기존 레거시 시스템의 사용 불편",
+                ].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      setResults({...results, frictionArea: option});
+                      nextStep();
+                    }}
+                    className={cn(
+                      "text-left p-5 rounded-2xl border-2 transition-all active:scale-[0.98]",
+                      results.frictionArea === option 
+                        ? "border-cmtx-blue bg-cmtx-blue/5 text-cmtx-blue" 
+                        : "border-slate-50 bg-slate-50 text-slate-600 hover:border-slate-200"
+                    )}
+                  >
+                    <span className="font-medium text-sm">{option}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 3: QUESTION 2 */}
+          {step === STEPS.QUESTION_2 && (
+            <motion.div 
+              key="q2"
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 space-y-8"
+            >
+              <div className="space-y-2">
+                <span className="text-[10px] bg-cmtx-blue/10 text-cmtx-blue px-2 py-0.5 rounded font-bold uppercase">Topic 02</span>
+                <h2 className="text-xl font-bold text-cmtx-navy leading-snug">
+                  AI를 도입한다면 어떤 부분에서 가장 큰 도움을 받고 싶으신가요?
+                </h2>
+              </div>
+              <textarea 
+                placeholder="자유롭게 의견을 적어주세요 (예: 주간 보고서 자동 초안 작성...)"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 min-h-[160px] focus:border-cmtx-blue outline-none text-sm leading-relaxed"
+                value={results.idea}
+                onChange={(e) => setResults({...results, idea: e.target.value})}
+              />
+              <div className="flex gap-3">
+                <button onClick={prevStep} className="p-4 rounded-2xl bg-slate-100 text-slate-600"><ArrowLeft/></button>
+                <button 
+                  onClick={nextStep}
+                  className="flex-1 bg-cmtx-navy text-white py-4 rounded-2xl font-bold"
+                >
+                  설문 제출하기
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 4: SUCCESS */}
+          {step === STEPS.SUCCESS && (
+            <motion.div 
+              key="success"
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex-1 flex flex-col items-center justify-center text-center space-y-6"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-10 h-10 text-green-600" />
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-2xl font-bold text-cmtx-navy">제출 완료</h1>
+                <p className="text-slate-500 text-sm leading-relaxed px-6">
+                  소중한 의견 감사드립니다. <br/>
+                  여러분의 답변은 CMTX의 AX 미래 전략 기획의 핵심 근거로 활용됩니다.
+                </p>
+              </div>
+              <div className="pt-8 w-full">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] text-slate-500 text-center">
+                  브라우저를 종료하셔도 좋습니다.
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Mobile Footer */}
+      <footer className="px-6 py-6 border-t border-slate-50 text-center">
+        <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">
+          Powered by CMTX AX-Planner OS
+        </p>
+      </footer>
     </div>
   );
 }
