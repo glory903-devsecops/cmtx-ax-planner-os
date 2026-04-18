@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8FAFC;
+  --foreground: #111827;
+  --cmtx-navy: #0F172A;
+  --cmtx-blue: #1D4ED8;
+  --cmtx-blue-light: #3B82F6;
+  --cmtx-border: #E5E7EB;
+  --cmtx-text-secondary: #6B7280;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-cmtx-navy: var(--cmtx-navy);
+  --color-cmtx-blue: var(--cmtx-blue);
+  --color-cmtx-blue-light: var(--cmtx-blue-light);
+  --color-cmtx-border: var(--cmtx-border);
+  --color-cmtx-secondary: var(--cmtx-text-secondary);
+
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  
+  --shadow-subtle: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium;
+}
+
+.sidebar-link-active {
+  @apply bg-cmtx-blue/10 text-cmtx-blue shadow-sm;
+}
+
+.sidebar-link-inactive {
+  @apply text-cmtx-secondary hover:bg-gray-100 hover:text-cmtx-navy;
+}
+
+.card {
+  @apply bg-white border border-cmtx-border rounded-xl shadow-subtle p-6;
+}
+
+.kpi-card {
+  @apply card flex flex-col gap-2;
+}
