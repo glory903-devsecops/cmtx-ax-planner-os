@@ -10,7 +10,7 @@ function cn(...inputs: ClassValue[]) {
 interface KPICardProps {
   title: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: React.ElementType;
   trend?: string;
   trendType?: "positive" | "negative" | "neutral";
   color?: "blue" | "navy" | "green" | "red";
