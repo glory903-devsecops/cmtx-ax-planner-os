@@ -102,7 +102,7 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <main className={cn(
         "flex-1 min-h-screen transition-all duration-300",
-        "lg:ml-64 pt-16 lg:pt-0" // Account for fixed mobile header
+        "pt-16 lg:pt-0" // Account for fixed mobile header only
       )}>
         {/* Desktop Header */}
         <header className="hidden lg:flex h-16 border-b border-cmtx-border bg-white/70 backdrop-blur-xl items-center justify-between px-10 sticky top-0 z-40">
