@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, AlertTriangle, Clock, Building2, CalendarDays } from "lucide-react";
+import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, Building2, CalendarDays } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { GRANTS, POLICY_ITEMS, GOVT_ACTIVITIES, GR_TREND_SIGNALS } from "@/lib/mock-data";
@@ -27,29 +27,9 @@ export default function GRHubOverviewPage() {
         }
       />
 
-      {/* KPI 요약 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "진행 중인 과제", value: GRANTS.length, icon: Gavel, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "긴급 규제 대응", value: POLICY_ITEMS.filter(p => p.status === "대응 필요").length, icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
-          { label: "후속조치 필요", value: GOVT_ACTIVITIES.filter(a => a.status === "후속조치 필요").length, icon: Clock, color: "text-violet-600", bg: "bg-violet-50" },
-          { label: "High 동향 시그널", value: GR_TREND_SIGNALS.filter(s => s.impact === "High").length, icon: TrendingUp, color: "text-amber-600", bg: "bg-amber-50" },
-        ].map((kpi, i) => {
-          const Icon = kpi.icon;
-          return (
-            <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className="p-4 bg-white border border-cmtx-border rounded-2xl shadow-sm">
-              <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center mb-2", kpi.bg)}>
-                <Icon className={cn("w-4 h-4", kpi.color)} />
-              </div>
-              <p className="text-2xl font-black text-cmtx-navy">{kpi.value}</p>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 leading-tight">{kpi.label}</p>
-            </motion.div>
-          );
-        })}
-      </div>
 
-      {/* ─── 메인 그리드: 정부/기관 협력(좌) + 나머지 3개(우) ─── */}
+      {/* ─── 메인 그리드 ─── */}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* ─── 좌측: 정부/기관 협력 (크게) ─── */}
@@ -90,7 +70,7 @@ export default function GRHubOverviewPage() {
           </div>
 
           {/* 타임라인 미리보기 — 전체 활동 표시 */}
-          <div className="flex-1 p-4 space-y-3 overflow-y-auto max-h-[480px]">
+          <div className="flex-1 p-4 space-y-3 overflow-y-auto max-h-[720px]">
             {GOVT_ACTIVITIES.map((item, i) => {
               const typeColor: Record<string, string> = {
                 "회의": "text-blue-600 bg-blue-50",
@@ -165,7 +145,7 @@ export default function GRHubOverviewPage() {
                 { label: "확보 사업비", value: "24.8억" },
                 { label: "마감 임박", value: GRANTS.filter(g => g.deadline.startsWith("D-")).length },
               ],
-              preview: GRANTS.slice(0, 3).map(g => ({ text: g.title, sub: `${g.agency} · ${g.budget}`, urgent: g.deadline.startsWith("D-") })),
+              preview: GRANTS.slice(0, 5).map(g => ({ text: g.title, sub: `${g.agency} · ${g.budget}`, urgent: g.deadline.startsWith("D-") })),
             },
             {
               id: "policy", href: "/gr-hub/policy", label: "정책/규제 대응", subLabel: "규제·법률 대응",
@@ -175,7 +155,7 @@ export default function GRHubOverviewPage() {
                 { label: "긴급 대응", value: POLICY_ITEMS.filter(p => p.status === "대응 필요").length },
                 { label: "이번 달 시행", value: 2 },
               ],
-              preview: POLICY_ITEMS.slice(0, 3).map(p => ({ text: p.title, sub: `${p.ministry} · ${p.effectiveDate}`, urgent: p.status === "대응 필요" })),
+              preview: POLICY_ITEMS.slice(0, 5).map(p => ({ text: p.title, sub: `${p.ministry} · ${p.effectiveDate}`, urgent: p.status === "대응 필요" })),
             },
             {
               id: "trends", href: "/gr-hub/trends", label: "산업 동향 대응", subLabel: "뉴스·정책 변화 모니터링",
@@ -185,7 +165,7 @@ export default function GRHubOverviewPage() {
                 { label: "High 영향도", value: GR_TREND_SIGNALS.filter(s => s.impact === "High").length },
                 { label: "자동 수집", value: "24/7" },
               ],
-              preview: GR_TREND_SIGNALS.slice(0, 3).map(s => ({ text: s.title, sub: `${s.source} · ${s.time}`, urgent: s.impact === "High" })),
+              preview: GR_TREND_SIGNALS.slice(0, 5).map(s => ({ text: s.title, sub: `${s.source} · ${s.time}`, urgent: s.impact === "High" })),
             },
           ].map((pillar, idx) => {
             const Icon = pillar.icon;
