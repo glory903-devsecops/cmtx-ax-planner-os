@@ -18,7 +18,6 @@ import {
   TrendingUp,
   FileSearch,
   ChevronDown,
-  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +35,6 @@ const coreItems = [
 ];
 
 const supportItems = [
-  { name: "대시보드", href: "/", icon: LayoutDashboard },
   { name: "자동화 센터", href: "/automation", icon: Cpu },
   { name: "지식 정보고", href: "/knowledge", icon: Database },
 ];
