@@ -8,17 +8,17 @@ CMTX AX Planner OS는 대외협력(GR), 산업 리서치, 그리고 사내 AI Tr
 
 ## 📂 프로젝트 핵심 모듈
 
-### 1. GR Hub (Government Relations)
+### 1. GR (대관) - Government Relations
 - **Opportunity Inbox**: 신규 정부과제 공고 자동 수집 및 분류.
 - **Deadline Radar**: 사업 마감 일정 및 D-Day 실시간 모니터링.
 - **Stakeholder CRM**: 유관 기관 및 이해관계자 소통 이력 관리.
 
-### 2. Industry Intelligence
+### 2. 산업 (조사) - Industry Intelligence
 - **Signal Inbox**: 글로벌 산업 뉴스 및 트렌드 실시간 센싱 (OpenAI GPT-4o 연동).
 - **Risk Radar**: 공급망 리스크 및 규제 변화 조기 경보 시스템.
 - **Trend Map**: 산업별 핵심 키워드 부상 및 쇠퇴 분석.
 
-### 3. AX Planning
+### 3. AX (기획) - AI Transformation Planning
 - **AX Friction Survey**: 사내 업무 병목 지점 발굴용 임직원 설문 시스템.
 - **Friction Map**: 부서별/업무별 페인포인트 시각화 및 정량 분석.
 - **AX Opportunity Board**: 자동화/AI 도입 우선순위 선정 및 기대가치 산출.

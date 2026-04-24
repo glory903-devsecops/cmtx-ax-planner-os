@@ -11,15 +11,22 @@ import {
   Compass, 
   Settings,
   ChevronRight,
-  User
+  User,
+  Cpu,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "GR Hub", href: "/gr-hub", icon: Gavel },
-  { name: "Industry Intelligence", href: "/intelligence", icon: BarChart3 },
-  { name: "AX Planning", href: "/ax-planning", icon: Compass },
+const coreItems = [
+  { name: "GR (대관)", href: "/gr-hub", icon: Gavel },
+  { name: "산업 (조사)", href: "/intelligence", icon: BarChart3 },
+  { name: "AX (기획)", href: "/ax-planning", icon: Compass },
+];
+
+const supportItems = [
+  { name: "대시보드", href: "/", icon: LayoutDashboard },
+  { name: "자동화 센터", href: "/automation", icon: Cpu },
+  { name: "지식 정보고", href: "/knowledge", icon: Database },
 ];
 
 export function Sidebar() {
@@ -37,35 +44,65 @@ export function Sidebar() {
           </span>
         </div>
         
-        <nav className="space-y-1.5">
-          <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Core Platform</p>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-semibold relative overflow-hidden",
-                  isActive 
-                    ? "bg-gradient-to-r from-cmtx-blue to-cmtx-blue/80 text-white shadow-lg shadow-cmtx-blue/20" 
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                {isActive && (
-                  <div className="absolute left-0 top-0 w-1 h-full bg-white rounded-r-full" />
-                )}
-                <div className="flex items-center gap-3">
-                  <item.icon className={cn("w-5 h-5 transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
-                  {item.name}
-                </div>
-                {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
-              </Link>
-            );
-          })}
+        <nav className="space-y-6">
+          <div>
+            <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">핵심 플랫폼</p>
+            <div className="space-y-1.5">
+              {coreItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-semibold relative overflow-hidden",
+                      isActive 
+                        ? "bg-gradient-to-r from-cmtx-blue to-cmtx-blue/80 text-white shadow-lg shadow-cmtx-blue/20" 
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    {isActive && (
+                      <div className="absolute left-0 top-0 w-1 h-full bg-white rounded-r-full" />
+                    )}
+                    <div className="flex items-center gap-3">
+                      <item.icon className={cn("w-5 h-5 transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
+                      {item.name}
+                    </div>
+                    {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
           
-          <div className="pt-6">
-            <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">External Ops</p>
+          <div>
+            <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">운영 지원</p>
+            <div className="space-y-1.5">
+              {supportItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-semibold relative overflow-hidden",
+                      isActive 
+                        ? "bg-slate-700 text-white shadow-sm" 
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className={cn("w-5 h-5 transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
+                      {item.name}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">대외 오퍼레이션</p>
             <Link
               href="/survey/"
               target="_blank"
@@ -73,9 +110,9 @@ export function Sidebar() {
             >
               <div className="flex items-center gap-3">
                 <ClipboardList className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                Emp. Survey
+                임직원 설문조사
               </div>
-              <BadgeSmall>External</BadgeSmall>
+              <BadgeSmall>외부링크</BadgeSmall>
             </Link>
           </div>
         </nav>
@@ -88,16 +125,18 @@ export function Sidebar() {
               <User className="w-5 h-5 text-slate-400" />
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-bold truncate">Admin Manager</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Enterprise Tier</p>
+              <p className="text-sm font-bold truncate">관리자 모드</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">엔터프라이즈 등급</p>
             </div>
           </div>
         </div>
 
-        <button className="flex items-center gap-3 text-slate-500 hover:text-white transition-colors text-sm w-full font-bold px-4">
-          <Settings className="w-5 h-5" />
-          System Settings
-        </button>
+        <div className="pt-4 border-t border-white/5">
+          <button className="flex items-center gap-3 text-slate-500 hover:text-white transition-colors text-sm w-full font-bold px-4">
+            <Settings className="w-5 h-5" />
+            시스템 설정
+          </button>
+        </div>
       </div>
     </div>
   );

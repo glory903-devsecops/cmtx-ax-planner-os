@@ -14,41 +14,41 @@ export default function AXPlanningPage() {
   return (
     <PageTransition>
       <PageHeader 
-        title="AX Planning"
-        subtitle="AI Transformation 로드맵 및 기획 보드"
+        title="AX 전략 기획"
+        subtitle="AI Transformation 로드맵 및 혁신 기획 보드"
         icon={<Compass className="w-6 h-6" />}
         actions={
           <button className="px-4 py-2 bg-cmtx-navy text-white rounded-lg text-xs font-bold hover:bg-cmtx-navy/90 transition-all flex items-center gap-2">
             <Zap className="w-4 h-4" />
-            Generate Strategic Roadmap
+            전략 로드맵 자동 생성
           </button>
         }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <SectionCard 
-          title="AX Friction Map" 
+          title="AX 보틀넥 지도 (Friction Map)" 
           icon={<Map className="w-4 h-4" />}
           className="lg:col-span-2"
           headerAction={
             <div className="flex gap-4">
-              <span className="text-[10px] font-bold text-cmtx-secondary border-r pr-4 border-cmtx-border">Sector: ALL</span>
-              <span className="text-[10px] font-bold text-cmtx-blue uppercase">Manual Reporting Friction</span>
+              <span className="text-[10px] font-bold text-cmtx-secondary border-r pr-4 border-cmtx-border">영역: 전체</span>
+              <span className="text-[10px] font-bold text-cmtx-blue uppercase">수동 보고 체계 페인포인트 분석</span>
             </div>
           }
         >
           <FrictionMap />
           <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
-            {["Finance", "HR", "Sales", "Production", "Logistics"].map((dept) => (
+            {["재무", "인사", "영업", "생산", "물류"].map((dept) => (
               <button key={dept} className="px-4 py-1 rounded-full border border-cmtx-border text-[10px] font-bold text-cmtx-secondary hover:border-cmtx-blue hover:text-cmtx-blue transition-all whitespace-nowrap">
-                {dept} Sector
+                {dept} 부문
               </button>
             ))}
           </div>
         </SectionCard>
 
         <SectionCard 
-          title="Recent Feedback" 
+          title="현장 혁신 피드백" 
           icon={<MessageSquare className="w-4 h-4" />}
         >
           <div className="space-y-4">
@@ -63,14 +63,14 @@ export default function AXPlanningPage() {
             ))}
           </div>
           <button className="w-full mt-6 py-2 flex items-center justify-center gap-2 text-xs font-bold text-cmtx-secondary hover:text-cmtx-navy transition-colors">
-            View All Feedback <ChevronRight className="w-3 h-3" />
+            전체 피드백 보기 <ChevronRight className="w-3 h-3" />
           </button>
         </SectionCard>
       </div>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <SectionCard 
-          title="AX Opportunity Board" 
+          title="AX 기회 탐색 보드" 
           icon={<Activity className="w-4 h-4" />}
           className="lg:col-span-2"
         >
@@ -85,17 +85,17 @@ export default function AXPlanningPage() {
         <SectionCard 
           variant="dark" 
           className="relative overflow-hidden"
-          title="Survey Hub"
+          title="혁신 설문 허브"
           icon={<Users className="w-5 h-5" />}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-cmtx-blue/20 blur-3xl -mr-16 -mt-16" />
           
           <div className="relative space-y-6">
             <div className="space-y-2 text-white">
-              <h4 className="text-lg font-bold leading-tight">직원 AX 혁신 설문 참여</h4>
+              <h4 className="text-lg font-bold leading-tight">임직원 AX 혁신 설문</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                전 사원 대상의 보틀넥 수집 설문입니다. <br/>
-                모바일 최적화 페이지를 통해 참여를 독려하세요.
+                전 사원 대상의 현장 보틀넥 수집 설문입니다. <br/>
+                모바일 환경에서 간편하게 참여할 수 있습니다.
               </p>
             </div>
 
@@ -110,9 +110,9 @@ export default function AXPlanningPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <p className="text-[10px] font-bold text-white uppercase">Live Now</p>
+                  <p className="text-[10px] font-bold text-white uppercase">실시간 진행 중</p>
                 </div>
-                <p className="text-[11px] text-slate-400">Scan for mobile access</p>
+                <p className="text-[11px] text-slate-400">QR 코드를 스캔하세요</p>
               </div>
             </div>
 
@@ -120,7 +120,7 @@ export default function AXPlanningPage() {
               href="/survey/" 
               className="w-full bg-white text-cmtx-navy py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors"
             >
-              Launch Survey Portal
+              설문 포탈 가동하기 (Survey)
               <ExternalLink className="w-3 h-3" />
             </Link>
           </div>

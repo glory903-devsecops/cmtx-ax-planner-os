@@ -70,7 +70,7 @@ export default function MobileSurveyPage() {
                 <Smartphone className="w-10 h-10 text-cmtx-blue" />
               </div>
               <div className="space-y-3">
-                <h1 className="text-2xl font-bold text-cmtx-navy">Employee AX Survey</h1>
+                <h1 className="text-2xl font-bold text-cmtx-navy">임직원 AX 혁신 설문</h1>
                 <p className="text-slate-500 text-sm leading-relaxed px-4">
                   CMTX의 디지털 혁신(AX)을 위해 현장의 목소리를 들려주세요. <br/>
                   모바일에서 1분이면 충분합니다.

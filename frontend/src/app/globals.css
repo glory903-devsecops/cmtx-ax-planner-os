@@ -8,10 +8,17 @@
   --background: #F8FAFC;
   --foreground: #0F172A;
   --cmtx-navy: #0F172A;
-  --cmtx-blue: #2563EB;
-  --cmtx-blue-light: #60A5FA;
+  --cmtx-blue: #1D4ED8;
+  --cmtx-blue-light: #3B82F6;
+  --cmtx-blue-dark: #1E3A8A;
   --cmtx-border: #E2E8F0;
   --cmtx-text-secondary: #64748B;
+  
+  /* Strategic Accents */
+  --accent-emerald: #10B981;
+  --accent-rose: #F43F5E;
+  --accent-amber: #F59E0B;
+  --accent-violet: #8B5CF6;
 }
 
 @theme {
@@ -21,15 +28,22 @@
   --color-cmtx-navy: var(--cmtx-navy);
   --color-cmtx-blue: var(--cmtx-blue);
   --color-cmtx-blue-light: var(--cmtx-blue-light);
+  --color-cmtx-blue-dark: var(--cmtx-blue-dark);
   --color-cmtx-border: var(--cmtx-border);
   --color-cmtx-secondary: var(--cmtx-text-secondary);
+
+  --color-accent-emerald: var(--accent-emerald);
+  --color-accent-rose: var(--accent-rose);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-violet: var(--accent-violet);
 
   --radius-xl: 0.75rem;
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
   
   --shadow-subtle: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --shadow-premium: 0 10px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --shadow-premium: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-glow-blue: 0 0 20px -5px rgba(29, 78, 216, 0.3);
 }
 
 body {
@@ -42,18 +56,33 @@ body {
 
 /* Custom Utilities for Premium Look */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .glass-dark {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Optimized scrollbar for premium desktop experience */
+.gradient-strategic {
+  background: linear-gradient(135deg, var(--cmtx-navy) 0%, var(--cmtx-blue-dark) 100%);
+}
+
+.gradient-pulse {
+  background: linear-gradient(90deg, var(--cmtx-blue) 0%, var(--cmtx-blue-light) 50%, var(--cmtx-blue) 100%);
+  background-size: 200% 100%;
+  animation: pulse-bg 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-bg {
+  0% { background-position: 100% 0%; }
+  100% { background-position: -100% 0%; }
+}
+
+/* Optimized scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -71,3 +100,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
