@@ -2,7 +2,7 @@
 
 import { Sidebar } from "@/components/layout/Sidebar";
 import React, { useState, useEffect } from "react";
-import { Menu, X, LayoutDashboard, Database, Cpu, Plus } from "lucide-react";
+import { Menu, X, Database, Cpu, Plus, Gavel, BarChart3, Compass, FileSearch, ShieldAlert, Handshake, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -47,26 +47,55 @@ export default function DashboardLayout({
 
       {/* Mobile Overlay Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-white pt-24 px-6">
-           <nav className="space-y-4">
+        <div className="lg:hidden fixed inset-0 z-40 bg-white pt-20 px-6 overflow-y-auto pb-8">
+          <nav className="space-y-2">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">핵심 플랫폼</p>
+            {[
+              { name: "GR Hub (대관/정부지원사업)", href: "/gr-hub", icon: Gavel },
+              { name: "└ 지원사업 확보", href: "/gr-hub/grants", icon: FileSearch, sub: true },
+              { name: "└ 정책/규제 대응", href: "/gr-hub/policy", icon: ShieldAlert, sub: true },
+              { name: "└ 정부/기관 협력", href: "/gr-hub/cooperation", icon: Handshake, sub: true },
+              { name: "└ 산업 동향 대응", href: "/gr-hub/trends", icon: TrendingUp, sub: true },
+              { name: "Industry Intelligence", href: "/intelligence", icon: BarChart3 },
+              { name: "AX Planning AI", href: "/ax-planning", icon: Compass },
+            ].map((item: any) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-4 p-3.5 rounded-2xl font-bold transition-all text-sm",
+                  item.sub ? "ml-4 py-2.5" : "",
+                  pathname === item.href
+                    ? "bg-cmtx-blue text-white"
+                    : item.sub
+                      ? "bg-slate-50 text-slate-500"
+                      : "bg-slate-100 text-slate-700"
+                )}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                {item.name}
+              </Link>
+            ))}
+            <div className="pt-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">운영 지원</p>
               {[
-                { name: "종합 대시보드", href: "/", icon: LayoutDashboard },
-                { name: "전략 자동화 센터", href: "/automation", icon: Cpu },
+                { name: "자동화 센터", href: "/automation", icon: Cpu },
                 { name: "지식 정보고", href: "/knowledge", icon: Database },
               ].map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-4 p-4 rounded-2xl font-bold transition-all",
-                    pathname === item.href ? "bg-cmtx-blue text-white" : "bg-slate-50 text-slate-600"
+                    "flex items-center gap-4 p-3.5 rounded-2xl font-bold transition-all text-sm mb-2",
+                    pathname === item.href ? "bg-cmtx-blue text-white" : "bg-slate-100 text-slate-700"
                   )}
                 >
-                  <item.icon className="w-6 h-6" />
+                  <item.icon className="w-5 h-5" />
                   {item.name}
                 </Link>
               ))}
-           </nav>
+            </div>
+          </nav>
         </div>
       )}
 
