@@ -109,7 +109,7 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3">
              <div className="w-1.5 h-6 bg-cmtx-blue rounded-full" />
              <h1 className="text-sm font-bold text-cmtx-navy uppercase tracking-widest bg-gradient-to-r from-cmtx-navy to-slate-500 bg-clip-text text-transparent">
-               전략 인텔리전스 및 AX 운영 시스템
+                미래전략 사업부 / 신사업 및 AX기획
              </h1>
           </div>
           
