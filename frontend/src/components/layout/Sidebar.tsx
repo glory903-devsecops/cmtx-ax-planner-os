@@ -30,9 +30,9 @@ const grSubItems = [
 ];
 
 const coreItems = [
-  { name: "GR Hub (대관/정부지원사업)", href: "/gr-hub", icon: Gavel, subItems: grSubItems },
-  { name: "Industry Intelligence (산업 조사)", href: "/intelligence", icon: BarChart3 },
-  { name: "AX Planning AI (의사결정)", href: "/ax-planning", icon: Compass },
+  { name: "대관/정부지원", href: "/gr-hub", icon: Gavel, subItems: grSubItems },
+  { name: "산업/분석", href: "/intelligence", icon: BarChart3 },
+  { name: "AX/기획", href: "/ax-planning", icon: Compass },
 ];
 
 const supportItems = [
