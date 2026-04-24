@@ -15,21 +15,6 @@ export default function DashboardLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Map paths to page titles (matching sidebar menu names)
-  const PAGE_TITLES: Record<string, string> = {
-    "/gr-hub":             "대관/정부지원",
-    "/gr-hub/grants":      "대관/정부지원 — 지원사업 확보",
-    "/gr-hub/policy":      "대관/정부지원 — 정책/규제 대응",
-    "/gr-hub/cooperation": "대관/정부지원 — 정부/기관 협력",
-    "/gr-hub/trends":      "대관/정부지원 — 산업 동향 대응",
-    "/intelligence":       "산업/분석",
-    "/ax-planning":        "AX/기획",
-    "/automation":         "자동화 센터",
-    "/knowledge":          "지식 정보고",
-  };
-  const currentPageTitle = PAGE_TITLES[pathname] ?? "미래전략 사업부 / 신사업 및 AX기획";
-
-
   // Close mobile menu on path change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -117,34 +102,8 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <main className={cn(
         "flex-1 min-h-screen transition-all duration-300",
-        "pt-16 lg:pt-0" // Account for fixed mobile header only
+        "pt-16 lg:pt-0"
       )}>
-        {/* Desktop Header */}
-        <header className="hidden lg:flex h-16 border-b border-cmtx-border bg-white/70 backdrop-blur-xl items-center justify-between px-10 sticky top-0 z-40">
-          <div className="flex items-center gap-3">
-             <div className="w-1.5 h-6 bg-cmtx-blue rounded-full" />
-             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">미래전략 사업부 / 신사업 및 AX기획</p>
-               <h1 className="text-sm font-bold text-cmtx-navy tracking-tight bg-gradient-to-r from-cmtx-navy to-slate-500 bg-clip-text text-transparent">
-                 {currentPageTitle}
-               </h1>
-             </div>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <div className="h-8 w-px bg-cmtx-border" />
-            <div className="text-right">
-              <span className="text-[10px] text-cmtx-secondary font-black uppercase tracking-tighter block mb-0.5">시스템 운영 상태</span>
-              <div className="flex items-center gap-1.5 justify-end">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">정상 작동 중 (Active)</span>
-              </div>
-            </div>
-          </div>
-        </header>
         
         <div className="p-6 md:p-10 max-w-7xl mx-auto">
           {children}
