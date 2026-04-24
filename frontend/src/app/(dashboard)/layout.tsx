@@ -13,6 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
   // Close mobile menu on path change
@@ -22,9 +23,19 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-slate-50/50">
-      {/* Desktop Sidebar (hidden on mobile) */}
-      <div className="hidden lg:block">
-        <Sidebar />
+
+      {/* ── Desktop Sidebar (push layout) ─────────────────── */}
+      <div
+        className="hidden lg:flex fixed left-0 top-0 h-screen z-50"
+        onMouseEnter={() => setIsSidebarOpen(true)}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
+        {/* 얇은 핸들 스트립 — 항상 보임 */}
+        <div className={cn(
+          "absolute left-0 top-0 w-3 h-full bg-gradient-to-b from-cmtx-blue via-cmtx-navy to-slate-900 opacity-70 transition-opacity duration-300 pointer-events-none",
+          isSidebarOpen ? "opacity-0" : "opacity-70"
+        )} />
+        <Sidebar isOpen={isSidebarOpen} />
       </div>
 
       {/* Mobile Top Header */}
@@ -37,7 +48,7 @@ export default function DashboardLayout({
              CMTX <span className="text-cmtx-blue">AX</span>
           </span>
         </div>
-        <button 
+        <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
         >
@@ -99,12 +110,14 @@ export default function DashboardLayout({
         </div>
       )}
 
-      {/* Main Content Area */}
-      <main className={cn(
-        "flex-1 min-h-screen transition-all duration-300",
-        "pt-16 lg:pt-0"
-      )}>
-        
+      {/* ── Main Content Area (push right when sidebar opens) */}
+      <main
+        className={cn(
+          "flex-1 min-h-screen transition-all duration-300",
+          "pt-16 lg:pt-0",
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-0"
+        )}
+      >
         <div className="p-6 md:p-10 max-w-7xl mx-auto">
           {children}
         </div>
