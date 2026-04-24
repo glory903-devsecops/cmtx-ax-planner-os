@@ -46,11 +46,17 @@
   --shadow-glow-blue: 0 0 20px -5px rgba(29, 78, 216, 0.3);
 }
 
+/* Base font size — all Tailwind rem units scale from this */
+html {
+  font-size: 17px;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 

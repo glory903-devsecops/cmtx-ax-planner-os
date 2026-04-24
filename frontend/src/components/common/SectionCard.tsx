@@ -38,7 +38,7 @@ export function SectionCard({
         <div className="flex items-center justify-between mb-6">
           <div className="space-y-0.5">
             <h3 className={cn(
-              "font-bold text-sm uppercase tracking-wider flex items-center gap-2",
+              "font-bold text-base uppercase tracking-wider flex items-center gap-2",
               variant === "dark" ? "text-white" : "text-cmtx-navy"
             )}>
               {icon && <span className="text-cmtx-blue">{icon}</span>}
@@ -46,7 +46,7 @@ export function SectionCard({
             </h3>
             {subtitle && (
               <p className={cn(
-                "text-[10px] font-medium",
+                "text-xs font-medium",
                 variant === "dark" ? "text-slate-400" : "text-cmtx-secondary"
               )}>
                 {subtitle}

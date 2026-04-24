@@ -15,6 +15,21 @@ export default function DashboardLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  // Map paths to page titles (matching sidebar menu names)
+  const PAGE_TITLES: Record<string, string> = {
+    "/gr-hub":             "대관/정부지원",
+    "/gr-hub/grants":      "대관/정부지원 — 지원사업 확보",
+    "/gr-hub/policy":      "대관/정부지원 — 정책/규제 대응",
+    "/gr-hub/cooperation": "대관/정부지원 — 정부/기관 협력",
+    "/gr-hub/trends":      "대관/정부지원 — 산업 동향 대응",
+    "/intelligence":       "산업/분석",
+    "/ax-planning":        "AX/기획",
+    "/automation":         "자동화 센터",
+    "/knowledge":          "지식 정보고",
+  };
+  const currentPageTitle = PAGE_TITLES[pathname] ?? "미래전략 사업부 / 신사업 및 AX기획";
+
+
   // Close mobile menu on path change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -51,13 +66,13 @@ export default function DashboardLayout({
           <nav className="space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">핵심 플랫폼</p>
             {[
-              { name: "GR Hub (대관/정부지원사업)", href: "/gr-hub", icon: Gavel },
+              { name: "대관/정부지원", href: "/gr-hub", icon: Gavel },
               { name: "└ 지원사업 확보", href: "/gr-hub/grants", icon: FileSearch, sub: true },
               { name: "└ 정책/규제 대응", href: "/gr-hub/policy", icon: ShieldAlert, sub: true },
               { name: "└ 정부/기관 협력", href: "/gr-hub/cooperation", icon: Handshake, sub: true },
               { name: "└ 산업 동향 대응", href: "/gr-hub/trends", icon: TrendingUp, sub: true },
-              { name: "Industry Intelligence", href: "/intelligence", icon: BarChart3 },
-              { name: "AX Planning AI", href: "/ax-planning", icon: Compass },
+              { name: "산업/분석", href: "/intelligence", icon: BarChart3 },
+              { name: "AX/기획", href: "/ax-planning", icon: Compass },
             ].map((item: any) => (
               <Link
                 key={item.name}
@@ -108,9 +123,12 @@ export default function DashboardLayout({
         <header className="hidden lg:flex h-16 border-b border-cmtx-border bg-white/70 backdrop-blur-xl items-center justify-between px-10 sticky top-0 z-40">
           <div className="flex items-center gap-3">
              <div className="w-1.5 h-6 bg-cmtx-blue rounded-full" />
-             <h1 className="text-sm font-bold text-cmtx-navy uppercase tracking-widest bg-gradient-to-r from-cmtx-navy to-slate-500 bg-clip-text text-transparent">
-                미래전략 사업부 / 신사업 및 AX기획
-             </h1>
+             <div>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">미래전략 사업부 / 신사업 및 AX기획</p>
+               <h1 className="text-sm font-bold text-cmtx-navy tracking-tight bg-gradient-to-r from-cmtx-navy to-slate-500 bg-clip-text text-transparent">
+                 {currentPageTitle}
+               </h1>
+             </div>
           </div>
           
           <div className="flex items-center gap-6">
