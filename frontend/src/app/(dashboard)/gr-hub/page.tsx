@@ -13,7 +13,7 @@ export default function GRHubOverviewPage() {
   return (
     <PageTransition>
       <PageHeader
-        title="GR Hub (대관/정부지원사업)"
+        title="GR Hub (대관/정부지원)"
         subtitle="정책 대응·정부 협력·지원사업 확보·산업 동향 통합 운영 센터"
         icon={<Gavel className="w-6 h-6" />}
         actions={
