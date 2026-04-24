@@ -1,0 +1,39 @@
+name: 🤖 GR Hub 크롤러 (매일 KST 09:00)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # UTC 00:00 = KST 09:00
+  workflow_dispatch:        # 수동 실행 허용 (GitHub Actions 탭에서 바로 실행 가능)
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    name: 기업마당 지원사업 크롤링
+
+    steps:
+      - name: 📦 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python 3.11 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: crawler/requirements.txt
+
+      - name: 📚 의존성 설치
+        run: |
+          cd crawler
+          pip install -r requirements.txt
+
+      - name: 🕷️ 크롤러 실행
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          cd crawler
+          python run_all.py
+
+      - name: 📊 실행 결과 요약
+        if: always()
+        run: echo "크롤러 실행 완료. Supabase 대시보드에서 데이터를 확인하세요."

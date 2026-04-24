@@ -1,0 +1,78 @@
+/**
+ * data-service.ts
+ * Supabase 우선 → 환경변수 없거나 데이터 없으면 mock-data fallback
+ * 프론트엔드 어디서든 이 함수를 사용하면 됩니다.
+ */
+import { supabase, isSupabaseConfigured } from './supabase';
+import { GRANTS, POLICY_ITEMS, GR_TREND_SIGNALS } from './mock-data';
+import type { Grant, PolicyItem, GRTrendSignal } from './mock-data';
+
+// Supabase에서 오는 grants 행을 프론트 Grant 타입으로 변환
+function toGrant(row: any): Grant {
+  return {
+    id: row.id,
+    title: row.title ?? '',
+    agency: row.agency ?? '',
+    type: row.category ?? 'R&D',
+    budget: row.budget ?? '미정',
+    status: 'Radar',
+    deadline: row.application_end
+      ? formatDeadline(row.application_end)
+      : '확인 필요',
+    description: row.description,
+    sourceUrl: row.source_url,
+  };
+}
+
+function formatDeadline(dateStr: string): string {
+  const end = new Date(dateStr);
+  const today = new Date();
+  const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (diff < 0) return '마감';
+  if (diff === 0) return 'D-Day';
+  if (diff <= 14) return `D-${diff}`;
+  return dateStr.slice(0, 10);
+}
+
+/**
+ * 지원사업 데이터 가져오기
+ * - Supabase 설정 O + 데이터 있음 → 실제 데이터
+ * - 그 외 → mock 데이터 (fallback)
+ */
+export async function fetchGrants(): Promise<{ data: Grant[]; isLive: boolean }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('grants')
+        .select('*')
+        .eq('status', 'active')
+        .order('crawled_at', { ascending: false })
+        .limit(20);
+
+      if (!error && data && data.length > 0) {
+        return { data: data.map(toGrant), isLive: true };
+      }
+    } catch (e) {
+      console.warn('[data-service] Supabase 오류, mock fallback:', e);
+    }
+  }
+
+  // fallback: mock 데이터 반환
+  return { data: GRANTS, isLive: false };
+}
+
+/**
+ * 정책/규제 데이터 — 현재 mock only (Phase 2에서 Supabase 연동 예정)
+ */
+export async function fetchPolicyItems(): Promise<{ data: PolicyItem[]; isLive: boolean }> {
+  // TODO: Supabase policy_items 테이블 연동 (Phase 2)
+  return { data: POLICY_ITEMS, isLive: false };
+}
+
+/**
+ * 산업 동향 시그널 — 현재 mock only (Phase 3에서 Supabase 연동 예정)
+ */
+export async function fetchTrendSignals(): Promise<{ data: GRTrendSignal[]; isLive: boolean }> {
+  // TODO: Supabase gr_trend_signals 테이블 연동 (Phase 3)
+  return { data: GR_TREND_SIGNALS, isLive: false };
+}
