@@ -1,7 +1,7 @@
 """
 기업마당 (bizinfo.go.kr) 지원사업 크롤러
 대상: https://www.bizinfo.go.kr 지원사업 공고 목록
-수집: 사업명, 주관기관, 지원금액, 접수기간, 공고 링크
+컬럼: [번호, 지원분야, 지원사업명, 신청기간, 소관부처, 사업수행기관, 등록일, 조회수]
 """
 import time
 import hashlib
@@ -34,10 +34,17 @@ HEADERS = {
     "Referer": "https://www.bizinfo.go.kr",
 }
 
+# 실제 기업마당 컬럼 인덱스 (HTML 분석 결과)
+COL_CATEGORY = 1    # 지원분야
+COL_TITLE    = 2    # 지원사업명
+COL_PERIOD   = 3    # 신청기간 (예: 2026-04-01 ~ 2026-05-15)
+COL_MINISTRY = 4    # 소관부처·지자체
+COL_AGENCY   = 5    # 사업수행기관
 
-def make_source_id(url: str) -> str:
+
+def make_source_id(href: str) -> str:
     """URL에서 고유 ID 생성 (중복 삽입 방지용)"""
-    return hashlib.md5(url.encode()).hexdigest()[:16]
+    return hashlib.md5(href.encode()).hexdigest()[:16]
 
 
 def parse_date(text: str) -> Optional[str]:
@@ -45,9 +52,6 @@ def parse_date(text: str) -> Optional[str]:
     if not text:
         return None
     text = text.strip().replace(".", "-").replace("/", "-")
-    # 날짜 범위에서 마지막 날짜 추출 (예: "2026-04-01 ~ 2026-05-15")
-    if "~" in text:
-        text = text.split("~")[-1].strip()
     try:
         datetime.strptime(text, "%Y-%m-%d")
         return text
@@ -55,15 +59,26 @@ def parse_date(text: str) -> Optional[str]:
         return None
 
 
-def is_relevant(title: str) -> bool:
-    """CMTX 관련 키워드 포함 여부 확인"""
-    return any(kw in title for kw in TARGET_KEYWORDS)
+def parse_period(period_text: str):
+    """'2026-04-01 ~ 2026-05-15' → (start_date, end_date)"""
+    app_start, app_end = None, None
+    if "~" in period_text:
+        parts = period_text.split("~")
+        app_start = parse_date(parts[0].strip())
+        app_end = parse_date(parts[1].strip())
+    return app_start, app_end
+
+
+def is_relevant(title: str, category: str) -> bool:
+    """CMTX 관련 키워드 포함 여부 확인 (키워드 없으면 전체 수집)"""
+    combined = title + " " + category
+    return any(kw in combined for kw in TARGET_KEYWORDS)
 
 
 def crawl_list_page(page: int) -> list[dict]:
     """한 페이지의 공고 목록을 파싱"""
     url = LIST_URL.format(page=page)
-    print(f"  📄 페이지 {page} 크롤링 중... ({url})")
+    print(f"  📄 페이지 {page} 크롤링 중...")
 
     try:
         res = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
@@ -73,56 +88,55 @@ def crawl_list_page(page: int) -> list[dict]:
         return []
 
     soup = BeautifulSoup(res.text, "lxml")
+
+    # 첫 번째 테이블의 tbody 행 파싱
+    table = soup.find("table")
+    if not table:
+        print("  ⚠️  테이블을 찾을 수 없습니다.")
+        return []
+
+    tbody = table.find("tbody")
+    rows = tbody.find_all("tr") if tbody else table.find_all("tr")[1:]
+
     items = []
-
-    # 기업마당 공고 목록 테이블 파싱
-    rows = soup.select("table.tbl-list tbody tr")
-    if not rows:
-        # 대안 셀렉터 시도
-        rows = soup.select(".bbs-list tbody tr")
-
     for row in rows:
-        cols = row.select("td")
-        if len(cols) < 3:
+        cols = row.find_all("td")
+        if len(cols) < 6:
             continue
 
         try:
-            # 제목 링크
-            title_el = row.select_one("td.title a, td a.subject")
-            if not title_el:
+            title    = cols[COL_TITLE].get_text(strip=True)
+            category = cols[COL_CATEGORY].get_text(strip=True)
+            period   = cols[COL_PERIOD].get_text(strip=True)
+            ministry = cols[COL_MINISTRY].get_text(strip=True)
+            agency   = cols[COL_AGENCY].get_text(strip=True)
+
+            # 링크 추출
+            link_el = cols[COL_TITLE].find("a")
+            if not link_el:
                 continue
-            title = title_el.get_text(strip=True)
-            href = title_el.get("href", "")
-            detail_url = href if href.startswith("http") else BASE_URL + href
+            href = link_el.get("href", "")
+            detail_url = BASE_URL + href if href.startswith("/") else href
 
             # 키워드 필터 (관련 없는 공고 제외)
-            if not is_relevant(title):
+            if not is_relevant(title, category):
                 continue
 
-            # 기관명, 기간, 상태 추출 (컬럼 위치는 사이트 구조에 따라 조정)
-            agency = cols[1].get_text(strip=True) if len(cols) > 1 else ""
-            period_text = cols[2].get_text(strip=True) if len(cols) > 2 else ""
-
-            # 기간 파싱 (예: "2026-04-01 ~ 2026-05-15")
-            app_start, app_end = None, None
-            if "~" in period_text:
-                parts = period_text.split("~")
-                app_start = parse_date(parts[0])
-                app_end = parse_date(parts[1])
-
-            source_id = make_source_id(detail_url)
+            app_start, app_end = parse_period(period)
+            source_id = make_source_id(href)
 
             items.append({
-                "source_id": source_id,
-                "title": title,
-                "agency": agency,
+                "source_id":        source_id,
+                "title":            title,
+                "agency":           ministry,           # 소관부처를 agency로 저장
+                "category":         category,
                 "application_start": app_start,
-                "application_end": app_end,
-                "deadline": app_end,
-                "source": "bizinfo",
-                "source_url": detail_url,
-                "status": "active",
-                "crawled_at": datetime.utcnow().isoformat(),
+                "application_end":  app_end,
+                "deadline":         app_end,
+                "source":           "bizinfo",
+                "source_url":       detail_url,
+                "status":           "active",
+                "crawled_at":       datetime.utcnow().isoformat(),
             })
 
         except Exception as e:
@@ -137,7 +151,7 @@ def upsert_to_supabase(client: Client, grants: list[dict]) -> int:
     if not grants:
         return 0
     try:
-        res = client.table("grants").upsert(
+        client.table("grants").upsert(
             grants,
             on_conflict="source_id"
         ).execute()
@@ -152,14 +166,15 @@ def run():
     print("=" * 60)
     print("🏢 기업마당 지원사업 크롤러 시작")
     print(f"   시작 시각: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"   키워드 필터: {', '.join(TARGET_KEYWORDS)}")
     print("=" * 60)
 
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
-        print("❌ Supabase 환경변수 미설정. 크롤링 결과를 출력만 합니다.")
+        print("⚠️  Supabase 미연결 → 콘솔 출력 모드\n")
         supabase_client = None
     else:
         supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-        print(f"✅ Supabase 연결: {SUPABASE_URL}")
+        print(f"✅ Supabase 연결: {SUPABASE_URL}\n")
 
     total_collected = 0
     total_saved = 0
@@ -167,30 +182,35 @@ def run():
     for page in range(1, MAX_PAGES + 1):
         grants = crawl_list_page(page)
 
-        if not grants:
-            print(f"  📭 페이지 {page}: 관련 공고 없음 또는 마지막 페이지. 중단.")
+        if not grants and page == 1:
+            print(f"\n  📭 첫 페이지에서 관련 공고를 찾지 못했습니다.")
+            print(f"     (키워드: {', '.join(TARGET_KEYWORDS)})")
+            break
+        elif not grants:
+            print(f"  📭 페이지 {page}: 마지막 페이지 또는 관련 공고 없음. 종료.")
             break
 
         total_collected += len(grants)
-        print(f"  ✅ 페이지 {page}: {len(grants)}건 파싱 완료")
+        print(f"  ✅ 페이지 {page}: {len(grants)}건 수집")
 
         if supabase_client:
             saved = upsert_to_supabase(supabase_client, grants)
             total_saved += saved
             print(f"  💾 Supabase 저장: {saved}건")
         else:
-            # 환경변수 없을 때 콘솔 출력으로 대체
+            # 콘솔 출력 모드
             for g in grants:
-                print(f"     - {g['title'][:60]}...")
+                deadline_str = f"마감: {g['deadline']}" if g['deadline'] else "마감일 미정"
+                print(f"    ✔ [{g['category']}] {g['title'][:55]}")
+                print(f"       {g['agency']} | {deadline_str}")
 
         time.sleep(REQUEST_DELAY)
 
-    print("=" * 60)
+    print("\n" + "=" * 60)
     print(f"🎉 크롤링 완료!")
     print(f"   수집: {total_collected}건 | 저장: {total_saved}건")
     print(f"   종료 시각: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)
-
     return total_saved
 
 
