@@ -2,14 +2,56 @@
 
 import React from "react";
 import Link from "next/link";
-import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, Building2, CalendarDays } from "lucide-react";
+import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, Building2, CalendarDays, Rocket, Info, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { GRANTS, POLICY_ITEMS, GOVT_ACTIVITIES, GR_TREND_SIGNALS } from "@/lib/mock-data";
-import { motion } from "framer-motion";
+import { GOVT_ACTIVITIES } from "@/lib/mock-data";
+import { fetchGrants, fetchPolicyItems, fetchTrendSignals } from "@/lib/data-service";
+import type { Grant, PolicyItem, GRTrendSignal } from "@/lib/mock-data";
+import { DetailPanel, DetailSection, RelatedLinkItem } from "@/components/common/DetailPanel";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export default function GRHubOverviewPage() {
+  const [grants, setGrants] = React.useState<Grant[]>([]);
+  const [policies, setPolicies] = React.useState<PolicyItem[]>([]);
+  const [trends, setTrends] = React.useState<GRTrendSignal[]>([]);
+  const [isLive, setIsLive] = React.useState(false);
+
+  // 상세 패널 상태
+  const [selectedItem, setSelectedItem] = React.useState<any>(null);
+  const [panelType, setPanelType] = React.useState<"grant" | "policy" | "trend" | null>(null);
+
+  React.useEffect(() => {
+    async function loadData() {
+      const [gRes, pRes, tRes] = await Promise.all([
+        fetchGrants(),
+        fetchPolicyItems(),
+        fetchTrendSignals()
+      ]);
+      setGrants(gRes.data);
+      setPolicies(pRes.data);
+      setTrends(tRes.data);
+      setIsLive(gRes.isLive);
+    }
+    loadData();
+  }, []);
+
+  const openGrant = (grant: Grant) => {
+    setSelectedItem(grant);
+    setPanelType("grant");
+  };
+
+  const openPolicy = (policy: PolicyItem) => {
+    setSelectedItem(policy);
+    setPanelType("policy");
+  };
+
+  const openTrend = (trend: GRTrendSignal) => {
+    setSelectedItem(trend);
+    setPanelType("trend");
+  };
+
   return (
     <PageTransition>
       <PageHeader
@@ -141,31 +183,34 @@ export default function GRHubOverviewPage() {
               id: "grants", href: "/gr-hub/grants", label: "지원사업 확보", subLabel: "공모·R&D·보조금",
               icon: Gavel, color: "from-blue-600 to-blue-700", lightText: "text-blue-600", lightBg: "bg-blue-50",
               stats: [
-                { label: "진행 과제", value: GRANTS.length },
+                { label: "진행 과제", value: grants.length },
                 { label: "확보 사업비", value: "24.8억" },
-                { label: "마감 임박", value: GRANTS.filter(g => g.deadline.startsWith("D-")).length },
+                { label: "마감 임박", value: grants.filter(g => g.deadline.startsWith("D-")).length },
               ],
-              preview: GRANTS.slice(0, 5).map(g => ({ text: g.title, sub: `${g.agency} · ${g.budget}`, urgent: g.deadline.startsWith("D-") })),
+              preview: grants.slice(0, 5),
+              onItemClick: openGrant
             },
             {
               id: "policy", href: "/gr-hub/policy", label: "정책/규제 대응", subLabel: "규제·법률 대응",
               icon: ShieldAlert, color: "from-rose-500 to-rose-600", lightText: "text-rose-600", lightBg: "bg-rose-50",
               stats: [
-                { label: "추적 규제", value: POLICY_ITEMS.length },
-                { label: "긴급 대응", value: POLICY_ITEMS.filter(p => p.status === "대응 필요").length },
+                { label: "추적 규제", value: policies.length },
+                { label: "긴급 대응", value: policies.filter(p => p.status === "대응 필요").length },
                 { label: "이번 달 시행", value: 2 },
               ],
-              preview: POLICY_ITEMS.slice(0, 5).map(p => ({ text: p.title, sub: `${p.ministry} · ${p.effectiveDate}`, urgent: p.status === "대응 필요" })),
+              preview: policies.slice(0, 5),
+              onItemClick: openPolicy
             },
             {
               id: "trends", href: "/gr-hub/trends", label: "산업 동향 대응", subLabel: "뉴스·정책 변화 모니터링",
               icon: TrendingUp, color: "from-amber-500 to-amber-600", lightText: "text-amber-600", lightBg: "bg-amber-50",
               stats: [
-                { label: "감지 시그널", value: GR_TREND_SIGNALS.length },
-                { label: "High 영향도", value: GR_TREND_SIGNALS.filter(s => s.impact === "High").length },
+                { label: "감지 시그널", value: trends.length },
+                { label: "High 영향도", value: trends.filter(s => s.impact === "High").length },
                 { label: "자동 수집", value: "24/7" },
               ],
-              preview: GR_TREND_SIGNALS.slice(0, 5).map(s => ({ text: s.title, sub: `${s.source} · ${s.time}`, urgent: s.impact === "High" })),
+              preview: trends.slice(0, 5),
+              onItemClick: openTrend
             },
           ].map((pillar, idx) => {
             const Icon = pillar.icon;
@@ -203,19 +248,29 @@ export default function GRHubOverviewPage() {
                   ))}
                 </div>
 
-                {/* 미리보기 아이템 */}
                 <div className="p-3 space-y-2">
-                  {pillar.preview.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0",
-                        item.urgent ? "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]" : "bg-slate-300"
-                      )} />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-cmtx-navy leading-snug line-clamp-1">{item.text}</p>
-                        <p className="text-[10px] text-slate-400 font-medium">{item.sub}</p>
+                  {pillar.preview.map((item: any, i: number) => {
+                    const isUrgent = (item.deadline && item.deadline.startsWith("D-")) || (item.status === "대응 필요") || (item.impact === "High");
+                    return (
+                      <div 
+                        key={i} 
+                        onClick={() => pillar.onItemClick(item)}
+                        className="flex items-start gap-2 cursor-pointer group/item hover:translate-x-1 transition-transform"
+                      >
+                        <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0",
+                          isUrgent ? "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]" : "bg-slate-300"
+                        )} />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-cmtx-navy leading-snug line-clamp-1 group-hover/item:text-cmtx-blue transition-colors">
+                            {item.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {item.agency || item.ministry || item.source} · {item.budget || item.effectiveDate || item.time}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Link href={pillar.href}
                     className={cn("flex items-center justify-center gap-1 pt-1 pb-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all", pillar.lightBg, pillar.lightText, "hover:opacity-80")}>
                     전체 보기 <ArrowRight className="w-2.5 h-2.5" />
@@ -253,6 +308,81 @@ export default function GRHubOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── 상세 패널 ─── */}
+      <DetailPanel
+        isOpen={!!selectedItem}
+        onClose={() => {
+          setSelectedItem(null);
+          setPanelType(null);
+        }}
+        title={selectedItem?.title || ""}
+        subtitle={selectedItem?.agency || selectedItem?.ministry || selectedItem?.source}
+        category={selectedItem?.type || selectedItem?.category || panelType?.toUpperCase()}
+        status={selectedItem?.status || selectedItem?.impact}
+      >
+        {panelType === "grant" && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">지원 규모</p>
+                <p className="text-lg font-black text-cmtx-navy">{selectedItem.budget}</p>
+              </div>
+              <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">마감 기한</p>
+                <p className="text-lg font-black text-rose-600">{selectedItem.deadline}</p>
+              </div>
+            </div>
+            
+            <DetailSection title="지원 요건 및 자격" icon={Info}>
+              <ul className="list-disc list-inside space-y-1">
+                <li>중소/중견기업 (반도체 소부장 분야)</li>
+                <li>최근 3년 내 R&D 실적 보유 기업</li>
+                <li>DX 선도 모델 제시 가능 기업</li>
+              </ul>
+            </DetailSection>
+
+            <DetailSection title="AI RECURSIVE SUMMARY" icon={Rocket}>
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                <p className="text-[11px] font-bold text-blue-800 leading-relaxed">
+                  본 과제는 실시간 데이터 수집 결과 **{selectedItem.agency}**에서 주관하는 핵심 사업입니다. 
+                  기업의 DX 역량 지표가 선정 확률에 큰 영향을 미칠 것으로 분석됩니다.
+                </p>
+              </div>
+            </DetailSection>
+
+            <DetailSection title="원본 소스 링크" icon={ExternalLink}>
+              <RelatedLinkItem 
+                title="공식 공고 페이지" 
+                url={selectedItem.sourceUrl} 
+                target="_blank"
+                rel="noopener noreferrer"
+                type="policy" 
+              />
+            </DetailSection>
+          </div>
+        )}
+
+        {panelType === "policy" && (
+          <div className="space-y-6">
+            <DetailSection title="규제 요약" icon={ShieldAlert}>
+              <p>{selectedItem.description || "해당 정책 및 규제에 대한 상세 분석이 진행 중입니다."}</p>
+            </DetailSection>
+            <DetailSection title="대응 가이드" icon={Info}>
+              <p className="font-bold text-rose-600">※ 현재 대응 지침 수립 중</p>
+            </DetailSection>
+          </div>
+        )}
+
+        {panelType === "trend" && (
+          <div className="space-y-6">
+            <DetailSection title="시그널 상세" icon={TrendingUp}>
+              <p>영향도: {selectedItem.impact}</p>
+              <p>감지 시각: {selectedItem.time}</p>
+            </DetailSection>
+          </div>
+        )}
+      </DetailPanel>
     </PageTransition>
   );
 }
