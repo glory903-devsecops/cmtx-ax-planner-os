@@ -1,21 +1,23 @@
 """
-기업마당 (bizinfo.go.kr) 지원사업 크롤러
+기업마당 (bizinfo.go.kr) 지원사업 크롤러 - Playwright 버전
 대상: https://www.bizinfo.go.kr 지원사업 공고 목록
-컬럼: [번호, 지원분야, 지원사업명, 신청기간, 소관부처, 사업수행기관, 등록일, 조회수]
+방식: Headless Chromium (봇 탐지 우회 + JavaScript 렌더링)
 """
 import time
+import random
 import hashlib
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-from typing import Optional
-from supabase import create_client, Client
 import sys
 import os
+from datetime import datetime
+from typing import Optional
+
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
+from supabase import create_client, Client
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from config import (
     SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
-    REQUEST_DELAY, REQUEST_TIMEOUT, MAX_PAGES, TARGET_KEYWORDS
+    REQUEST_DELAY, MAX_PAGES, TARGET_KEYWORDS
 )
 
 BASE_URL = "https://www.bizinfo.go.kr"
@@ -24,31 +26,19 @@ LIST_URL = (
     "?rows=20&cpage={page}"
 )
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/122.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8",
-    "Referer": "https://www.bizinfo.go.kr",
-}
-
-# 실제 기업마당 컬럼 인덱스 (HTML 분석 결과)
-COL_CATEGORY = 1    # 지원분야
-COL_TITLE    = 2    # 지원사업명
-COL_PERIOD   = 3    # 신청기간 (예: 2026-04-01 ~ 2026-05-15)
-COL_MINISTRY = 4    # 소관부처·지자체
-COL_AGENCY   = 5    # 사업수행기관
+# 컬럼 인덱스
+COL_CATEGORY = 1
+COL_TITLE    = 2
+COL_PERIOD   = 3
+COL_MINISTRY = 4
+COL_AGENCY   = 5
 
 
 def make_source_id(href: str) -> str:
-    """URL에서 고유 ID 생성 (중복 삽입 방지용)"""
     return hashlib.md5(href.encode()).hexdigest()[:16]
 
 
 def parse_date(text: str) -> Optional[str]:
-    """'2026-05-31' 또는 '2026.05.31' 형식을 ISO 날짜로 변환"""
     if not text:
         return None
     text = text.strip().replace(".", "-").replace("/", "-")
@@ -60,65 +50,63 @@ def parse_date(text: str) -> Optional[str]:
 
 
 def parse_period(period_text: str):
-    """'2026-04-01 ~ 2026-05-15' → (start_date, end_date)"""
     app_start, app_end = None, None
     if "~" in period_text:
         parts = period_text.split("~")
         app_start = parse_date(parts[0].strip())
-        app_end = parse_date(parts[1].strip())
+        app_end   = parse_date(parts[1].strip())
     return app_start, app_end
 
 
 def is_relevant(title: str, category: str) -> bool:
-    """CMTX 관련 키워드 포함 여부 확인 (키워드 없으면 전체 수집)"""
+    """키워드 필터 — TARGET_KEYWORDS가 비어있으면 전체 수집"""
+    if not TARGET_KEYWORDS:
+        return True
     combined = title + " " + category
     return any(kw in combined for kw in TARGET_KEYWORDS)
 
 
-def crawl_list_page(page: int) -> list[dict]:
-    """한 페이지의 공고 목록을 파싱"""
-    url = LIST_URL.format(page=page)
-    print(f"  📄 페이지 {page} 크롤링 중...")
+def crawl_list_page(page_obj, page_num: int) -> list[dict]:
+    url = LIST_URL.format(page=page_num)
+    print(f"  📄 페이지 {page_num} 크롤링 중... ({url})")
 
     try:
-        res = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
-        res.raise_for_status()
-    except requests.RequestException as e:
-        print(f"  ❌ 요청 실패: {e}")
+        page_obj.goto(url, wait_until="networkidle", timeout=30000)
+    except PlaywrightTimeout:
+        # networkidle 타임아웃 시 domcontentloaded로 재시도
+        try:
+            page_obj.goto(url, wait_until="domcontentloaded", timeout=20000)
+            page_obj.wait_for_timeout(3000)
+        except Exception as e:
+            print(f"  ❌ 페이지 로드 실패: {e}")
+            return []
+
+    # tbody tr 파싱
+    rows = page_obj.query_selector_all("table tbody tr")
+    if not rows:
+        print("  ⚠️  테이블 행을 찾을 수 없습니다.")
         return []
-
-    soup = BeautifulSoup(res.text, "lxml")
-
-    # 첫 번째 테이블의 tbody 행 파싱
-    table = soup.find("table")
-    if not table:
-        print("  ⚠️  테이블을 찾을 수 없습니다.")
-        return []
-
-    tbody = table.find("tbody")
-    rows = tbody.find_all("tr") if tbody else table.find_all("tr")[1:]
 
     items = []
     for row in rows:
-        cols = row.find_all("td")
+        cols = row.query_selector_all("td")
         if len(cols) < 6:
             continue
 
         try:
-            title    = cols[COL_TITLE].get_text(strip=True)
-            category = cols[COL_CATEGORY].get_text(strip=True)
-            period   = cols[COL_PERIOD].get_text(strip=True)
-            ministry = cols[COL_MINISTRY].get_text(strip=True)
-            agency   = cols[COL_AGENCY].get_text(strip=True)
+            title    = cols[COL_TITLE].inner_text().strip()
+            category = cols[COL_CATEGORY].inner_text().strip()
+            period   = cols[COL_PERIOD].inner_text().strip()
+            ministry = cols[COL_MINISTRY].inner_text().strip()
 
             # 링크 추출
-            link_el = cols[COL_TITLE].find("a")
+            link_el = cols[COL_TITLE].query_selector("a")
             if not link_el:
                 continue
-            href = link_el.get("href", "")
+            href = link_el.get_attribute("href") or ""
             detail_url = BASE_URL + href if href.startswith("/") else href
 
-            # 키워드 필터 (관련 없는 공고 제외)
+            # 키워드 필터
             if not is_relevant(title, category):
                 continue
 
@@ -126,17 +114,17 @@ def crawl_list_page(page: int) -> list[dict]:
             source_id = make_source_id(href)
 
             items.append({
-                "source_id":        source_id,
-                "title":            title,
-                "agency":           ministry,           # 소관부처를 agency로 저장
-                "category":         category,
+                "source_id":         source_id,
+                "title":             title,
+                "agency":            ministry,
+                "category":          category,
                 "application_start": app_start,
-                "application_end":  app_end,
-                "deadline":         app_end,
-                "source":           "bizinfo",
-                "source_url":       detail_url,
-                "status":           "active",
-                "crawled_at":       datetime.utcnow().isoformat(),
+                "application_end":   app_end,
+                "deadline":          app_end,
+                "source":            "bizinfo",
+                "source_url":        detail_url,
+                "status":            "active",
+                "crawled_at":        datetime.utcnow().isoformat(),
             })
 
         except Exception as e:
@@ -147,7 +135,6 @@ def crawl_list_page(page: int) -> list[dict]:
 
 
 def upsert_to_supabase(client: Client, grants: list[dict]) -> int:
-    """Supabase에 데이터 upsert (중복 시 업데이트)"""
     if not grants:
         return 0
     try:
@@ -162,11 +149,13 @@ def upsert_to_supabase(client: Client, grants: list[dict]) -> int:
 
 
 def run():
-    """기업마당 크롤러 메인 실행"""
     print("=" * 60)
-    print("🏢 기업마당 지원사업 크롤러 시작")
+    print("🏢 기업마당 지원사업 크롤러 시작 (Playwright)")
     print(f"   시작 시각: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"   키워드 필터: {', '.join(TARGET_KEYWORDS)}")
+    if TARGET_KEYWORDS:
+        print(f"   키워드 필터: {', '.join(TARGET_KEYWORDS)}")
+    else:
+        print("   키워드 필터: 없음 (전체 수집)")
     print("=" * 60)
 
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
@@ -179,32 +168,67 @@ def run():
     total_collected = 0
     total_saved = 0
 
-    for page in range(1, MAX_PAGES + 1):
-        grants = crawl_list_page(page)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                # 봇 탐지 우회: webdriver 신호 제거
+                "--disable-blink-features=AutomationControlled",
+                "--disable-dev-shm-usage",
+                "--no-sandbox",                  # GitHub Actions 필수
+                "--disable-setuid-sandbox",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+            ]
+        )
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            ),
+            viewport={"width": 1920, "height": 1080},
+            locale="ko-KR",
+            timezone_id="Asia/Seoul",
+            # navigator.webdriver = false 로 설정
+            java_script_enabled=True,
+        )
+        # navigator.webdriver 속성 숨기기 (핵심 봇 탐지 우회)
+        context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+            Object.defineProperty(navigator, 'languages', { get: () => ['ko-KR', 'ko', 'en-US'] });
+        """)
+        page_obj = context.new_page()
 
-        if not grants and page == 1:
-            print(f"\n  📭 첫 페이지에서 관련 공고를 찾지 못했습니다.")
-            print(f"     (키워드: {', '.join(TARGET_KEYWORDS)})")
-            break
-        elif not grants:
-            print(f"  📭 페이지 {page}: 마지막 페이지 또는 관련 공고 없음. 종료.")
-            break
+        for page_num in range(1, MAX_PAGES + 1):
+            grants = crawl_list_page(page_obj, page_num)
 
-        total_collected += len(grants)
-        print(f"  ✅ 페이지 {page}: {len(grants)}건 수집")
+            if not grants and page_num == 1:
+                print(f"\n  📭 첫 페이지에서 관련 공고를 찾지 못했습니다.")
+                break
+            elif not grants:
+                print(f"  📭 페이지 {page_num}: 마지막 페이지. 종료.")
+                break
 
-        if supabase_client:
-            saved = upsert_to_supabase(supabase_client, grants)
-            total_saved += saved
-            print(f"  💾 Supabase 저장: {saved}건")
-        else:
-            # 콘솔 출력 모드
-            for g in grants:
-                deadline_str = f"마감: {g['deadline']}" if g['deadline'] else "마감일 미정"
-                print(f"    ✔ [{g['category']}] {g['title'][:55]}")
-                print(f"       {g['agency']} | {deadline_str}")
+            total_collected += len(grants)
+            print(f"  ✅ 페이지 {page_num}: {len(grants)}건 수집")
 
-        time.sleep(REQUEST_DELAY)
+            if supabase_client:
+                saved = upsert_to_supabase(supabase_client, grants)
+                total_saved += saved
+                print(f"  💾 Supabase 저장: {saved}건")
+            else:
+                for g in grants:
+                    deadline_str = f"마감: {g['deadline']}" if g['deadline'] else "마감일 미정"
+                    print(f"    ✔ [{g['category']}] {g['title'][:55]}")
+                    print(f"       {g['agency']} | {deadline_str}")
+
+            # 사람처럼 랜덤 딜레이 (1.0~2.5초)
+            time.sleep(REQUEST_DELAY + random.uniform(0, 1.0))
+
+        context.close()
+        browser.close()
 
     print("\n" + "=" * 60)
     print(f"🎉 크롤링 완료!")
