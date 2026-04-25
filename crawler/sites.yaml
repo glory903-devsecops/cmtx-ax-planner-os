@@ -34,12 +34,12 @@ sites:
 
   - id: iris
     name: IRIS 범부처통합연구지원시스템
-    enabled: false                # Phase 2에서 활성화
+    enabled: true                 # 활성화
     crawler: iris
-    url: "https://www.iris.go.kr/contents/retrieveBusinessPbancList.do"
+    url: "https://www.iris.go.kr/main.do"
     login_required: false
     frequency: daily
-    max_pages: 5
+    max_pages: 3
     keywords: *keywords
 
   - id: iitp

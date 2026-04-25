@@ -129,6 +129,8 @@ export function RelatedLinkItem({ title, url, type }: { title: string, url: stri
   return (
     <a 
       href={url}
+      target="_blank"
+      rel="noopener noreferrer"
       className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-transparent hover:border-cmtx-blue/30 hover:bg-white hover:shadow-sm transition-all group"
     >
       <div className="flex items-center gap-3">
