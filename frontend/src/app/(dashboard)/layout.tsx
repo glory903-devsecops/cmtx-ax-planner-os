@@ -24,22 +24,29 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-slate-50/50">
 
-      {/* ── Desktop Sidebar (push layout) ─────────────────── */}
+      {/* ── Desktop/Tablet Sidebar (hover reveal) ─────────────────── */}
       <div
-        className="hidden lg:flex fixed left-0 top-0 h-screen z-50"
+        className="hidden md:flex fixed left-0 top-0 h-screen z-50 group/sidebar-container"
         onMouseEnter={() => setIsSidebarOpen(true)}
         onMouseLeave={() => setIsSidebarOpen(false)}
       >
-        {/* 얇은 핸들 스트립 — 항상 보임 */}
+        {/* 더 넓은 호버 감지 영역 (사용자 편의성 향상) */}
         <div className={cn(
-          "absolute left-0 top-0 w-3 h-full bg-gradient-to-b from-cmtx-blue via-cmtx-navy to-slate-900 opacity-70 transition-opacity duration-300 pointer-events-none",
+          "absolute left-0 top-0 w-6 h-full transition-all duration-300 z-10",
+          isSidebarOpen ? "w-0" : "w-6 bg-gradient-to-r from-cmtx-blue/20 to-transparent cursor-pointer"
+        )} />
+        
+        {/* 항상 보이는 얇은 인디케이터 스트립 */}
+        <div className={cn(
+          "absolute left-0 top-0 w-1.5 h-full bg-gradient-to-b from-cmtx-blue via-cmtx-navy to-slate-900 opacity-70 transition-opacity duration-300",
           isSidebarOpen ? "opacity-0" : "opacity-70"
         )} />
+        
         <Sidebar isOpen={isSidebarOpen} />
       </div>
 
-      {/* Mobile Top Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-cmtx-border z-50 px-6 flex items-center justify-between">
+      {/* Mobile Top Header (Visible only on < 768px) */}
+      <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-cmtx-border z-50 px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-cmtx-blue rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-cmtx-blue/20">
             C
@@ -56,9 +63,10 @@ export default function DashboardLayout({
         </button>
       </header>
 
-      {/* Mobile Overlay Menu */}
+      {/* Mobile Overlay Menu (Visible only on < 768px) */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-white pt-20 px-6 overflow-y-auto pb-8">
+        <div className="md:hidden fixed inset-0 z-40 bg-white pt-20 px-6 overflow-y-auto pb-8">
+          {/* ... (모바일 메뉴 동일) */}
           <nav className="space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">핵심 플랫폼</p>
             {[
@@ -114,8 +122,8 @@ export default function DashboardLayout({
       <main
         className={cn(
           "flex-1 min-h-screen transition-all duration-300",
-          "pt-16 lg:pt-0",
-          isSidebarOpen ? "lg:ml-64" : "lg:ml-0"
+          "pt-16 md:pt-0",
+          isSidebarOpen ? "md:ml-64" : "md:ml-0"
         )}
       >
         <div className="p-6 md:p-10 max-w-7xl mx-auto">
@@ -123,7 +131,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Mobile Quick Insight FAB */}
-        <button className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-cmtx-blue text-white rounded-full shadow-2xl shadow-cmtx-blue/40 flex items-center justify-center z-50 active:scale-90 transition-transform">
+        <button className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-cmtx-blue text-white rounded-full shadow-2xl shadow-cmtx-blue/40 flex items-center justify-center z-50 active:scale-90 transition-transform">
           <Plus className="w-8 h-8" />
         </button>
       </main>
