@@ -248,26 +248,31 @@ export default function GRHubOverviewPage() {
                   ))}
                 </div>
 
-                <div className="p-3 space-y-2">
+                <div className="px-2 pb-3 space-y-1">
                   {pillar.preview.map((item: any, i: number) => {
                     const isUrgent = (item.deadline && item.deadline.startsWith("D-")) || (item.status === "대응 필요") || (item.impact === "High");
                     return (
                       <div 
                         key={i} 
                         onClick={() => pillar.onItemClick(item)}
-                        className="flex items-start gap-2 cursor-pointer group/item hover:translate-x-1 transition-transform"
+                        className="flex items-center justify-between p-2.5 rounded-xl cursor-pointer group/item hover:bg-slate-50 hover:shadow-sm border border-transparent hover:border-slate-100 transition-all duration-200"
                       >
-                        <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0",
-                          isUrgent ? "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]" : "bg-slate-300"
-                        )} />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-cmtx-navy leading-snug line-clamp-1 group-hover/item:text-cmtx-blue transition-colors">
-                            {item.title}
-                          </p>
-                          <p className="text-[10px] text-slate-400 font-medium">
-                            {item.agency || item.ministry || item.source} · {item.budget || item.effectiveDate || item.time}
-                          </p>
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0",
+                            isUrgent ? "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]" : "bg-slate-300"
+                          )} />
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-cmtx-navy leading-snug line-clamp-1 group-hover/item:text-cmtx-blue transition-colors">
+                              {item.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-slate-400 font-bold">{item.agency || item.ministry || item.source}</span>
+                              <span className="text-[10px] text-slate-300">|</span>
+                              <span className="text-[10px] text-slate-500 font-black">{item.budget || item.effectiveDate || item.time}</span>
+                            </div>
+                          </div>
                         </div>
+                        <ArrowRight className="w-3 h-3 text-slate-300 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0.5 transition-all shrink-0 ml-2" />
                       </div>
                     );
                   })}
