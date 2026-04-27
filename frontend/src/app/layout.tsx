@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "엔터프라이즈 AX 운영 및 전략 플랫폼",
 };
 
+import { AuthProvider } from "@/lib/auth-context";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${inter.className} bg-background text-foreground antialiased`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

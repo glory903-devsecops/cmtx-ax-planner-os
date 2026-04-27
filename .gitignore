@@ -32,5 +32,6 @@ crawler/.env
 
 # Local Security & Admin Access (Never push to GitHub)
 ADMIN_ACCESS_GUIDE.md
+ADMIN_CREDENTIALS.md
 .env.local
 frontend/.env.local

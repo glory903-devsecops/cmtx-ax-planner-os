@@ -43,9 +43,15 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
+import { useAuth } from "@/lib/auth-context";
+import { LogIn, LogOut, X, Key, Mail } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
 export function Sidebar({ isOpen }: SidebarProps) {
   const pathname = usePathname();
   const isGRActive = pathname.startsWith("/gr-hub");
+  const { isLoggedIn, user, logout, login } = useAuth();
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
 
   return (
     <div
@@ -61,7 +67,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
           <div className="w-9 h-9 bg-cmtx-blue rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-cmtx-blue/20">
             C
           </div>
-          <span className="font-bold text-xl tracking-tight">
+          <span className="font-bold text-xl tracking-tight text-white">
             CMTX <span className="text-cmtx-blue-light">AX</span>
           </span>
         </div>
@@ -169,22 +175,145 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
       {/* Bottom */}
       <div className="p-6 border-t border-white/5 space-y-4 shrink-0">
-        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center ring-2 ring-white/5">
-              <User className="w-5 h-5 text-slate-400" />
+        <div className="p-4 bg-white/5 rounded-2xl border border-white/10 group/user relative overflow-hidden">
+          <div className="absolute inset-0 bg-cmtx-blue/5 opacity-0 group-hover/user:opacity-100 transition-opacity" />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center ring-2 ring-white/5 transition-all",
+              isLoggedIn ? "bg-cmtx-blue shadow-lg shadow-cmtx-blue/20" : "bg-slate-700"
+            )}>
+              <User className={cn("w-5 h-5", isLoggedIn ? "text-white" : "text-slate-400")} />
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-bold truncate">관리자 모드</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">엔터프라이즈 등급</p>
+            <div className="overflow-hidden flex-1">
+              <p className="text-sm font-bold truncate">
+                {isLoggedIn ? "관리자 (CMTX)" : "게스트 모드"}
+              </p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                {isLoggedIn ? "엔터프라이즈 등급" : "조회 전용 권한"}
+              </p>
             </div>
           </div>
         </div>
-        <button className="flex items-center gap-3 text-slate-500 hover:text-white transition-colors text-sm w-full font-bold px-4">
-          <Settings className="w-5 h-5" />
+
+        {isLoggedIn ? (
+          <button 
+            onClick={logout}
+            className="flex items-center gap-3 text-slate-500 hover:text-rose-400 transition-colors text-xs w-full font-bold px-4"
+          >
+            <LogOut className="w-4 h-4" />
+            시스템 로그아웃
+          </button>
+        ) : (
+          <button 
+            onClick={() => setShowLoginModal(true)}
+            className="flex items-center gap-3 text-cmtx-blue-light hover:text-white transition-colors text-xs w-full font-bold px-4"
+          >
+            <LogIn className="w-4 h-4" />
+            관리자 로그인
+          </button>
+        )}
+
+        <button className="flex items-center gap-3 text-slate-500 hover:text-white transition-colors text-xs w-full font-bold px-4">
+          <Settings className="w-4 h-4" />
           시스템 설정
         </button>
       </div>
+
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLoginModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden p-8"
+            >
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-cmtx-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Key className="w-8 h-8 text-cmtx-blue" />
+                  </div>
+                  <h3 className="text-xl font-black text-cmtx-navy tracking-tight">관리자 인증</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-1">시스템 제어 권한을 획득합니다.</p>
+                </div>
+
+                <LoginForm 
+                  onSuccess={() => setShowLoginModal(false)} 
+                  onLogin={login}
+                />
+
+                <button 
+                  onClick={() => setShowLoginModal(false)}
+                  className="w-full text-center text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  나중에 하기
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function LoginForm({ onSuccess, onLogin }: { onSuccess: () => void, onLogin: (pw: string) => Promise<boolean> }) {
+  const [password, setPassword] = React.useState("");
+  const [isError, setIsError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsError(false);
+    setIsLoading(true);
+    
+    const success = await onLogin(password);
+    if (success) {
+      onSuccess();
+    } else {
+      setIsError(true);
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider pl-1">관리자 액세스 키</label>
+        <div className="relative">
+          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input 
+            type="password"
+            autoFocus
+            required
+            className={cn(
+              "w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl text-xs font-mono outline-none transition-all",
+              isError ? "border-rose-300 ring-2 ring-rose-100" : "border-slate-200 focus:ring-2 focus:ring-cmtx-blue/20"
+            )}
+            placeholder="ACCESS KEY"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+        </div>
+        {isError && <p className="text-[10px] font-bold text-rose-500 pl-1">인증 키가 일치하지 않습니다.</p>}
+      </div>
+      <button 
+        disabled={isLoading}
+        className="w-full py-4 bg-cmtx-navy text-white rounded-xl text-xs font-black shadow-xl hover:bg-slate-800 disabled:opacity-50 transition-all"
+      >
+        {isLoading ? "인증 중..." : "인증 확인 및 접속"}
+      </button>
+    </form>
+  );
+}
     </div>
   );
 }
