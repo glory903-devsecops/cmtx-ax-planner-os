@@ -72,11 +72,11 @@ class BaseCrawler(ABC):
 
     # ── 키워드 필터 ────────────────────────────────────
     def is_relevant(self, *texts: str) -> bool:
-        """키워드 목록이 비어 있으면 전체 수집, 있으면 하나라도 포함 시 True"""
+        """키워드 목록이 비어 있으면 전체 수집, 있으면 하나라도 포함 시 True (대소문자 무시)"""
         if not self.keywords:
             return True
-        combined = " ".join(texts)
-        return any(kw in combined for kw in self.keywords)
+        combined = " ".join(texts).lower()
+        return any(kw.lower() in combined for kw in self.keywords)
 
     # ── URL 생성 ───────────────────────────────────────
     def page_url(self, page_num: int) -> str:

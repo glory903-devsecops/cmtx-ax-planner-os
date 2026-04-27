@@ -4,17 +4,29 @@
 
 keywords: &keywords
   - 반도체
+  - 메모리
+  - 팹리스
+  - 파운드리
+  - 설계
+  - 패키징
+  - HBM
+  - CXL
+  - 소부장
   - 소재
   - 부품
   - 장비
-  - 소부장
   - 세라믹
   - 쿼츠
   - R&D
   - 기술개발
+  - AI
+  - 인공지능
+  - 머신러닝
   - 디지털전환
-  - 스마트제조
+  - DX
   - AX
+  - 스마트공장
+  - 스마트제조
 
 sites:
 
@@ -158,6 +170,16 @@ sites:
     login_required: false
     frequency: daily
     max_pages: 5
+    keywords: *keywords
+
+  - id: spri
+    name: 소프트웨어정책연구소
+    enabled: true
+    crawler: spri
+    url: "https://spri.kr/posts?code=data_all&flg=1"
+    login_required: false
+    frequency: weekly
+    max_pages: 3
     keywords: *keywords
 
   # ──────────────────────────────────────────
