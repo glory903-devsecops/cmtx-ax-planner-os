@@ -243,21 +243,32 @@ function AddTargetModal({ onClose, onSuccess }: { onClose: () => void, onSuccess
     priority: "Medium",
     frequency: "매일",
     purpose: "",
-    keywords: ""
+    keywords: "",
+    adminKey: "" // 보안을 위한 관리자 키 필드 추가
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 임시 관리자 키 확인 (데모 보안용)
+    if (formData.adminKey !== "cmtx-admin-2024") {
+      alert("⚠️ 관리자 인증 키가 올바르지 않습니다. 등록 권한이 없습니다.");
+      return;
+    }
+
     setIsSubmitting(true);
     
     const targetData: Omit<AutomationTarget, 'id'> = {
-      ...formData,
-      enabled: true,
-      keywords: formData.keywords.split(",").map(k => k.trim()).filter(k => k !== ""),
+      name: formData.name,
+      url: formData.url,
       target_menu: formData.target_menu as any,
+      category: formData.category,
       priority: formData.priority as any,
-      frequency: formData.frequency as any
+      frequency: formData.frequency as any,
+      purpose: formData.purpose,
+      enabled: true,
+      keywords: formData.keywords.split(",").map(k => k.trim()).filter(k => k !== "")
     };
 
     const success = await addCrawlingTarget(targetData);
@@ -382,6 +393,22 @@ function AddTargetModal({ onClose, onSuccess }: { onClose: () => void, onSuccess
             value={formData.purpose}
             onChange={e => setFormData({...formData, purpose: e.target.value})}
           />
+        </div>
+
+        {/* 보안 인증 키 필드 추가 */}
+        <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <label className="text-[10px] font-black text-cmtx-blue uppercase tracking-wider flex items-center gap-2">
+            <Database className="w-3 h-3" /> 관리자 보안 인증
+          </label>
+          <input 
+            required
+            type="password"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-cmtx-blue/20 outline-none transition-all"
+            placeholder="관리자 액세스 키를 입력하세요"
+            value={formData.adminKey}
+            onChange={e => setFormData({...formData, adminKey: e.target.value})}
+          />
+          <p className="text-[9px] text-slate-400 font-medium">* 데모 환경에서는 인증된 관계자만 신규 타겟을 등록할 수 있습니다.</p>
         </div>
 
         <div className="pt-4 flex gap-3">
