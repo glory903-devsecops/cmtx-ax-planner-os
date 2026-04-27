@@ -251,9 +251,11 @@ function AddTargetModal({ onClose, onSuccess }: { onClose: () => void, onSuccess
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 임시 관리자 키 확인 (데모 보안용)
-    if (formData.adminKey !== "cmtx-admin-2024") {
-      alert("⚠️ 관리자 인증 키가 올바르지 않습니다. 등록 권한이 없습니다.");
+    // 환경 변수에서 관리자 키 로드 (로컬 .env.local에서 관리)
+    const adminKey = process.env.NEXT_PUBLIC_ADMIN_ACCESS_KEY;
+    
+    if (!adminKey || formData.adminKey !== adminKey) {
+      alert("⚠️ 관리자 인증 키가 올바르지 않거나 설정되지 않았습니다. 등록 권한이 없습니다.");
       return;
     }
 

@@ -29,3 +29,8 @@ frontend/.next/
 
 # Crawler secrets
 crawler/.env
+
+# Local Security & Admin Access (Never push to GitHub)
+ADMIN_ACCESS_GUIDE.md
+.env.local
+frontend/.env.local
