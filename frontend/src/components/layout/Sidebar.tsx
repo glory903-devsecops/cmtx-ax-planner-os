@@ -314,6 +314,3 @@ function LoginForm({ onSuccess, onLogin }: { onSuccess: () => void, onLogin: (pw
     </form>
   );
 }
-    </div>
-  );
-}
