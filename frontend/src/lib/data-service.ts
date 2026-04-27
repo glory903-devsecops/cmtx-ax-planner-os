@@ -69,6 +69,62 @@ export async function fetchPolicyItems(): Promise<{ data: PolicyItem[]; isLive: 
   return { data: POLICY_ITEMS, isLive: false };
 }
 
+import { DEFAULT_TARGETS, AutomationTarget } from './automation-targets';
+
+// ... (기존 코드 생략)
+
+/**
+ * 크롤링 대상 목록 가져오기
+ */
+export async function fetchCrawlingTargets(): Promise<{ data: AutomationTarget[]; isLive: boolean }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('crawling_targets')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const mapped = data.map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          url: row.url,
+          category: row.category,
+          target_menu: row.target_menu,
+          priority: row.priority,
+          frequency: row.frequency,
+          purpose: row.purpose,
+          enabled: row.enabled,
+          keywords: row.keywords
+        }));
+        return { data: mapped, isLive: true };
+      }
+    } catch (e) {
+      console.warn('[data-service] Crawling Targets 조회 실패:', e);
+    }
+  }
+  return { data: DEFAULT_TARGETS, isLive: false };
+}
+
+/**
+ * 크롤링 대상 추가하기
+ */
+export async function addCrawlingTarget(target: Omit<AutomationTarget, 'id'>): Promise<boolean> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { error } = await supabase
+        .from('crawling_targets')
+        .insert([target]);
+      
+      if (!error) return true;
+      console.error('[data-service] Target 추가 실패:', error);
+    } catch (e) {
+      console.error('[data-service] Target 추가 오류:', e);
+    }
+  }
+  return false;
+}
+
 /**
  * 산업 동향 시그널 — 현재 mock only (Phase 3에서 Supabase 연동 예정)
  */
