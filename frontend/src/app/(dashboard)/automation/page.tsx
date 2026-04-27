@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Cpu, Activity, Play, RefreshCcw, Globe, Clock, Plus, X, Search, Filter, ChevronRight, CheckCircle2, Database, Layout, Target, Tag } from "lucide-react";
+import { Cpu, Activity, Play, RefreshCcw, Globe, Clock, Plus, X, Search, Filter, ChevronRight, CheckCircle2, Database, Layout, Target, Tag, Settings2 } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { Badge } from "@/components/common/Badge";
@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 import { useSimulation } from "@/lib/useSimulation";
 import { fetchCrawlingTargets, addCrawlingTarget } from "@/lib/data-service";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { useAuth } from "@/lib/auth-context";
+import { Skeleton } from "@/components/common/Skeleton";
 
 export default function AutomationPage() {
   const [targets, setTargets] = useState<AutomationTarget[]>([]);
@@ -30,7 +30,8 @@ export default function AutomationPage() {
     setIsLoading(true);
     const { data } = await fetchCrawlingTargets();
     setTargets(data);
-    setIsLoading(false);
+    // 프리미엄 트랜지션을 위한 미세 지연
+    setTimeout(() => setIsLoading(false), 500);
   };
 
   const filteredTargets = activeTab === "All" 
@@ -57,7 +58,7 @@ export default function AutomationPage() {
           <div className="flex gap-2">
             <button 
               onClick={() => { resetSimulation(); loadTargets(); }}
-              className="px-4 py-2 border border-cmtx-border bg-white rounded-lg text-xs font-bold hover:bg-gray-50 flex items-center gap-2 transition-all"
+              className="px-4 py-2 border border-cmtx-border bg-white rounded-lg text-xs font-bold hover:bg-gray-50 flex items-center gap-2 transition-all active:scale-95"
             >
               <RefreshCcw className={cn("w-3.5 h-3.5", isSimulating && "animate-spin")} /> 동기화
             </button>
@@ -114,7 +115,7 @@ export default function AutomationPage() {
           <SectionCard variant="glass">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
               <div className="flex bg-slate-100 p-1 rounded-xl">
-                {["전체", "GR Hub", "Intelligence", "AX Planning"].map((tab) => (
+                {["All", "GR Hub", "Intelligence", "AX Planning"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
@@ -136,9 +137,10 @@ export default function AutomationPage() {
             </div>
 
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <RefreshCcw className="w-8 h-8 text-slate-200 animate-spin" />
-                <p className="text-xs text-slate-400 font-medium">데이터베이스 연동 중...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map(i => (
+                  <Skeleton key={i} className="h-[200px] rounded-2xl" />
+                ))}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

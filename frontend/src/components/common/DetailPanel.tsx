@@ -46,36 +46,47 @@ export function DetailPanel({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-screen w-full max-w-xl bg-white/90 backdrop-blur-xl shadow-2xl z-[101] border-l border-white/20 flex flex-col"
+            className="fixed top-0 right-0 h-screen w-full max-w-xl bg-white shadow-2xl z-[101] border-l border-slate-100 flex flex-col"
           >
+            {/* Premium Intelligence Header */}
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cmtx-blue via-violet-500 to-rose-500" />
+            
             {/* Header */}
-            <div className="p-8 border-b border-slate-100 relative">
+            <div className="p-8 pb-6 border-b border-slate-50 relative">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-2 h-2 rounded-full bg-cmtx-blue animate-pulse" />
+                <span className="text-[10px] font-black text-cmtx-blue uppercase tracking-[0.2em]">Intelligence Report</span>
+              </div>
+              
               <button 
                 onClick={onClose}
-                className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-900"
+                className="absolute top-8 right-8 p-2.5 hover:bg-slate-50 rounded-full transition-all text-slate-300 hover:text-cmtx-navy hover:rotate-90"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  {category && <Badge variant="outline">{category}</Badge>}
-                  {status && <Badge variant="success">{status}</Badge>}
+                <div className="flex items-center gap-2">
+                  {category && <Badge variant="strategic">{category}</Badge>}
+                  {status && <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100">{status}</Badge>}
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-cmtx-navy tracking-tight leading-tight mb-2">
                     {title}
                   </h2>
                   {subtitle && (
-                    <p className="text-slate-500 font-medium">{subtitle}</p>
+                    <p className="text-sm text-slate-400 font-bold flex items-center gap-2">
+                      <div className="w-1 h-3 bg-slate-200 rounded-full" />
+                      {subtitle}
+                    </p>
                   )}
                 </div>
                 
                 <div className="flex gap-2 pt-2">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-600 transition-all">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-cmtx-navy text-white hover:bg-slate-800 rounded-xl text-[10px] font-black transition-all shadow-lg shadow-cmtx-navy/20 active:scale-95">
                     <Bookmark className="w-3.5 h-3.5" /> 전략 노트 저장
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-600 transition-all">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-cmtx-blue hover:text-cmtx-blue rounded-xl text-[10px] font-black text-slate-600 transition-all active:scale-95">
                     <Share2 className="w-3.5 h-3.5" /> 인사이트 공유
                   </button>
                 </div>

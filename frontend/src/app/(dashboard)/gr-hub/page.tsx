@@ -12,11 +12,14 @@ import { DetailPanel, DetailSection, RelatedLinkItem } from "@/components/common
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+import { Skeleton, CardSkeleton } from "@/components/common/Skeleton";
+
 export default function GRHubOverviewPage() {
   const [grants, setGrants] = React.useState<Grant[]>([]);
   const [policies, setPolicies] = React.useState<PolicyItem[]>([]);
   const [trends, setTrends] = React.useState<GRTrendSignal[]>([]);
   const [isLive, setIsLive] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   // 상세 패널 상태
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
@@ -24,15 +27,21 @@ export default function GRHubOverviewPage() {
 
   React.useEffect(() => {
     async function loadData() {
-      const [gRes, pRes, tRes] = await Promise.all([
-        fetchGrants(),
-        fetchPolicyItems(),
-        fetchTrendSignals()
-      ]);
-      setGrants(gRes.data);
-      setPolicies(pRes.data);
-      setTrends(tRes.data);
-      setIsLive(gRes.isLive);
+      setIsLoading(true);
+      try {
+        const [gRes, pRes, tRes] = await Promise.all([
+          fetchGrants(),
+          fetchPolicyItems(),
+          fetchTrendSignals()
+        ]);
+        setGrants(gRes.data);
+        setPolicies(pRes.data);
+        setTrends(tRes.data);
+        setIsLive(gRes.isLive);
+      } finally {
+        // 로딩 체감을 위해 약간의 지연 추가 (프리미엄 트랜지션)
+        setTimeout(() => setIsLoading(false), 600);
+      }
     }
     loadData();
   }, []);
@@ -71,38 +80,46 @@ export default function GRHubOverviewPage() {
 
 
       {/* ─── 메인 그리드 ─── */}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* ─── 좌측: 정부/기관 협력 (크게) ─── */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white border border-cmtx-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-violet-300 transition-all duration-300 group flex flex-col"
-        >
-          {/* 카드 헤더 — 클릭하면 상세 이동 */}
-          <Link href="/gr-hub/cooperation" className="block">
-            <div className="p-5 bg-gradient-to-r from-violet-500 to-violet-600 text-white flex items-center justify-between cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Handshake className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-black text-lg leading-tight">정부/기관 협력</p>
-                  <p className="text-xs text-white/70 font-bold">부처·기관 커뮤니케이션</p>
-                </div>
-              </div>
-              <ArrowRight className="w-5 h-5 opacity-60 group-hover:translate-x-1 transition-transform" />
+        {isLoading ? (
+          <>
+            <CardSkeleton />
+            <div className="flex flex-col gap-6">
+              <Skeleton className="h-[240px] rounded-2xl" />
+              <Skeleton className="h-[240px] rounded-2xl" />
             </div>
-          </Link>
+          </>
+        ) : (
+          <>
+            {/* ─── 좌측: 정부/기관 협력 (크게) ─── */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white border border-cmtx-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-violet-300 transition-all duration-300 group flex flex-col"
+            >
+              {/* 카드 헤더 — 클릭하면 상세 이동 */}
+              <Link href="/gr-hub/cooperation" className="block">
+                <div className="p-5 bg-gradient-to-r from-violet-500 to-violet-600 text-white flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <Handshake className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-black text-lg leading-tight">정부/기관 협력</p>
+                      <p className="text-xs text-white/70 font-bold">부처·기관 커뮤니케이션</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 opacity-60 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
 
-          {/* 통계 */}
-          <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100">
-            {[
-              { label: "총 활동", value: GOVT_ACTIVITIES.length, color: "text-violet-600" },
-              { label: "후속조치 필요", value: GOVT_ACTIVITIES.filter(a => a.status === "후속조치 필요").length, color: "text-rose-500" },
-              { label: "예정된 일정", value: GOVT_ACTIVITIES.filter(a => a.status === "예정").length, color: "text-blue-500" },
+              {/* 통계 */}
+              <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100">
+                {[
+                  { label: "총 활동", value: GOVT_ACTIVITIES.length, color: "text-violet-600" },
+                  { label: "후속조치 필요", value: GOVT_ACTIVITIES.filter(a => a.status === "후속조치 필요").length, color: "text-rose-500" },
+                  { label: "예정된 일정", value: GOVT_ACTIVITIES.filter(a => a.status === "예정").length, color: "text-blue-500" },
             ].map((s, i) => (
               <div key={i} className="p-3 text-center">
                 <p className={cn("text-xl font-black", s.color)}>{s.value}</p>
@@ -285,7 +302,9 @@ export default function GRHubOverviewPage() {
             );
           })}
         </div>
-      </div>
+      </>
+    )}
+    </div>
 
       {/* Live Feed */}
       <div className="mt-8 p-6 bg-cmtx-navy rounded-2xl text-white relative overflow-hidden">
