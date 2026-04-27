@@ -205,15 +205,17 @@ export default function AutomationPage() {
               <div className="flex gap-4">
                  <div className="flex items-center gap-2">
                    <span className={cn("w-2 h-2 rounded-full", isSimulating ? "bg-emerald-500 animate-pulse" : "bg-slate-300")} />
-                   <span className="text-[10px] font-bold text-slate-500 uppercase">{isSimulating ? "시뮬레이션 가동 중" : "초기 대기 상태"}</span>
+                   <span className="text-[10px] font-bold text-slate-500 uppercase">{isSimulating ? "크롤러 파이프라인 가동 중" : "전체 시스템 대기"}</span>
                  </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredTargets.map((target) => (
-                <TargetItem key={target.id} target={target} isRunning={isSimulating} />
-              ))}
+              {filteredTargets
+                .sort((a, b) => (a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1))
+                .map((target) => (
+                  <TargetItem key={target.id} target={target} isRunning={isSimulating && target.enabled} />
+                ))}
             </div>
           </SectionCard>
         </div>
@@ -222,10 +224,10 @@ export default function AutomationPage() {
            <SectionCard title="실시간 작업 현황" icon={<Activity className="w-4 h-4" />}>
              <div className="space-y-5">
                 {[
-                  { name: "IRIS 스크래퍼", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? progress : 0 },
-                  { name: "소부장 공급망 모니터", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 20) : 0 },
-                  { name: "경쟁사 기술 레이더", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 40) : 0 },
-                  { name: "문서 분석 (AX)", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 60) : 0 },
+                  { name: "핵심 과제 스크래퍼", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? progress : 0 },
+                  { name: "산업 인텔리전스 분석", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 20) : 0 },
+                  { name: "정부 정책 레이더", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 40) : 0 },
+                  { name: "AX 기획 엔진 동기화", status: isSimulating ? "가동 중" : "대기", progress: isSimulating ? Math.max(0, progress - 60) : 0 },
                 ].map((task, i) => (
                   <div key={i} className="space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-bold">
@@ -245,18 +247,20 @@ export default function AutomationPage() {
              </div>
            </SectionCard>
 
-           <SectionCard title="지능화 크롤링 통계" variant="dark">
+           <SectionCard title="시스템 통합 지표" variant="dark">
               <div className="space-y-6">
                  <div className="flex items-center gap-3">
-                   <AlertTriangle className="w-5 h-5 text-amber-400" />
+                   <div className="p-2 bg-white/10 rounded-lg">
+                     <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                   </div>
                    <div>
-                     <p className="text-[10px] font-bold text-amber-400 uppercase">시스템 상태</p>
-                     <p className="text-xs text-slate-400">12개 에이전트 가동 가능</p>
+                     <p className="text-[10px] font-bold text-emerald-400 uppercase">동기화 상태</p>
+                     <p className="text-xs text-slate-400">{AUTOMATION_TARGETS.filter(t => t.enabled).length}개 채널 활성</p>
                    </div>
                  </div>
                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">누적 인텔리전스 기록</p>
-                    <p className="text-2xl font-bold text-white italic">4,812 <span className="text-xs font-normal text-slate-500">건 처리 완료</span></p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">오늘 수집된 인텔리전스</p>
+                    <p className="text-2xl font-bold text-white italic">140 <span className="text-xs font-normal text-slate-500">건 돌파</span></p>
                  </div>
               </div>
            </SectionCard>
@@ -269,8 +273,11 @@ export default function AutomationPage() {
 function TargetItem({ target, isRunning }: { target: AutomationTarget, isRunning: boolean }) {
   return (
     <motion.div 
-      whileHover={{ y: -2 }}
-      className="p-4 bg-white border border-cmtx-border rounded-xl hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden"
+      whileHover={target.enabled ? { y: -2 } : {}}
+      className={cn(
+        "p-4 bg-white border border-cmtx-border rounded-xl transition-all group flex flex-col justify-between relative overflow-hidden",
+        target.enabled ? "hover:shadow-md cursor-pointer" : "opacity-60 bg-slate-50 border-dashed"
+      )}
     >
       {isRunning && (
         <motion.div 
@@ -281,14 +288,24 @@ function TargetItem({ target, isRunning }: { target: AutomationTarget, isRunning
       )}
       <div className="space-y-3">
         <div className="flex justify-between items-start">
-          <Badge variant="outline" className="text-[9px]">{target.category}</Badge>
+          <div className="flex gap-1.5">
+            <Badge variant="outline" className="text-[9px]">{target.category}</Badge>
+            {target.enabled ? (
+              <Badge variant="success" className="text-[9px] px-1.5 py-0">Active</Badge>
+            ) : (
+              <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Standby</Badge>
+            )}
+          </div>
           <div className="flex gap-1.5">
             <Badge variant={target.priority === "High" ? "critical" : "medium"} className="px-1">{target.priority}</Badge>
             <Badge variant="default" className="px-1">{target.frequency}</Badge>
           </div>
         </div>
         <div>
-          <h4 className="text-sm font-bold text-cmtx-navy flex items-center gap-1.5 group-hover:text-cmtx-blue transition-colors">
+          <h4 className={cn(
+            "text-sm font-bold flex items-center gap-1.5 transition-colors",
+            target.enabled ? "text-cmtx-navy group-hover:text-cmtx-blue" : "text-slate-400"
+          )}>
             <Globe className="w-3.5 h-3.5" />
             {target.name}
           </h4>
@@ -298,11 +315,13 @@ function TargetItem({ target, isRunning }: { target: AutomationTarget, isRunning
       
       <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400">
-          <Clock className="w-3 h-3" /> {isRunning ? "수집 중..." : "2시간 전"}
+          <Clock className="w-3 h-3" /> {isRunning ? "수집 중..." : target.enabled ? "09:00 가동 대기" : "개발 중"}
         </div>
-        <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-cmtx-navy transition-all">
-          <Settings2 className="w-3.5 h-3.5" />
-        </button>
+        {target.enabled && (
+          <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-cmtx-navy transition-all">
+            <Settings2 className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </motion.div>
   );
