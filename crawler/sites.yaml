@@ -44,19 +44,19 @@ sites:
 
   - id: iitp
     name: IITP 정보통신기획평가원
-    enabled: false
+    enabled: true
     crawler: iitp
-    url: "https://www.iitp.kr/kr/1/business/businessAnnouncement/list.it"
+    url: "https://www.iitp.kr/web/lay1/bbs/S1T12C37/A/7/list.do"
     login_required: false
     frequency: daily
     max_pages: 5
     keywords: *keywords
 
   - id: keit
-    name: KEIT 한국산업기술평가관리원
-    enabled: false
+    name: KEIT 한국산업기술기획평가원
+    enabled: true
     crawler: keit
-    url: "https://www.keit.re.kr/keit/businessProgress/businessProgress_list.do"
+    url: "https://srome.keit.re.kr/srome/biz/perform/opnnPrpsl/retrieveTaskAnncmListView.do?prgmId=XPG201040000"
     login_required: false
     frequency: daily
     max_pages: 5
@@ -64,19 +64,19 @@ sites:
 
   - id: tipa
     name: TIPA 중소기업기술정보진흥원
-    enabled: false
+    enabled: true
     crawler: tipa
     url: "https://www.smtech.go.kr/front/ifg/no/notice02_list.do"
     login_required: false
-    frequency: weekly
-    max_pages: 3
+    frequency: daily
+    max_pages: 5
     keywords: *keywords
 
   - id: ntis
     name: NTIS 국가과학기술지식정보서비스
-    enabled: false
+    enabled: true
     crawler: ntis
-    url: "https://www.ntis.go.kr/project/pjtList.do"
+    url: "https://www.ntis.go.kr/rndgate/eg/un/ra/mng.do"
     login_required: false          # 목록은 로그인 불필요
     frequency: daily
     max_pages: 5
@@ -98,12 +98,12 @@ sites:
 
   - id: mss
     name: 중소벤처기업부
-    enabled: false
+    enabled: true
     crawler: mss
     url: "https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=86"
     login_required: false
     frequency: daily
-    max_pages: 3
+    max_pages: 5
     keywords: *keywords
 
   - id: msit
@@ -114,6 +114,16 @@ sites:
     login_required: false
     frequency: daily
     max_pages: 3
+    keywords: *keywords
+
+  - id: kstartup
+    name: K-Startup
+    enabled: true
+    crawler: kstartup
+    url: "https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do"
+    login_required: false
+    frequency: daily
+    max_pages: 5
     keywords: *keywords
 
   # ──────────────────────────────────────────
@@ -132,12 +142,22 @@ sites:
 
   - id: kiat
     name: KIAT 한국산업기술진흥원
-    enabled: false
+    enabled: true
     crawler: kiat
-    url: "https://www.kiat.or.kr/site/main/board/list.do?boardManagementNo=16"
+    url: "https://www.k-pass.kr/notice/ancList.do"
     login_required: false
-    frequency: weekly
-    max_pages: 3
+    frequency: daily
+    max_pages: 5
+    keywords: *keywords
+
+  - id: krit
+    name: 국방기술진흥연구소
+    enabled: true
+    crawler: krit
+    url: "https://www.krit.re.kr/krit/bbs/notice_list.do?gotoMenuNo=05010000"
+    login_required: false
+    frequency: daily
+    max_pages: 5
     keywords: *keywords
 
   # ──────────────────────────────────────────
@@ -162,6 +182,16 @@ sites:
     login_required: false
     frequency: weekly
     max_pages: 3
+    keywords: *keywords
+
+  - id: keti
+    name: KETI 한국전자기술연구원
+    enabled: true
+    crawler: keti
+    url: "https://www.keti.re.kr/notice/notice.php?code=board1"
+    login_required: false
+    frequency: daily
+    max_pages: 5
     keywords: *keywords
 
   - id: etnews

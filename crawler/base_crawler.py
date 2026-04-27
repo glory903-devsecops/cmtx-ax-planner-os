@@ -137,6 +137,7 @@ class BaseCrawler(ABC):
                 locale="ko-KR",
                 timezone_id="Asia/Seoul",
                 java_script_enabled=True,
+                ignore_https_errors=True,
             )
             context.add_init_script(STEALTH_SCRIPT)
             page = context.new_page()
