@@ -16,6 +16,7 @@ import { Download, Bookmark, CheckCircle2 } from "lucide-react";
 
 import { Skeleton, CardSkeleton } from "@/components/common/Skeleton";
 import { RoadmapGenerator } from "@/components/features/RoadmapGenerator";
+import { Badge } from "@/components/common/Badge";
 
 export default function GRHubOverviewPage() {
   const [grants, setGrants] = React.useState<Grant[]>([]);
