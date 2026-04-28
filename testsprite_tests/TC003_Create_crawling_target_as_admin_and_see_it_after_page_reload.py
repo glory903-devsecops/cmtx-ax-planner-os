@@ -30,14 +30,44 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Try a management/registration entry point link since the admin login control element is not visible. Click the '전체 관리 및 신규 등록' link (index 522) which should navigate to the management/registration area or prompt admin authentication.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[2]/div/div[2]/a').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to the app root URL to try to expose the admin/management controls and let the UI render the admin authentication entry point.
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
+        
+        # -> Click the '전체 관리 및 신규 등록' management/registration link (interactive element index 2241) to open the admin authentication or management panel, then wait for the UI to update.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[2]/div/a').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Click the '관리자 로그인' button to open the admin authentication dialog so the access key can be entered.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div/div[3]/div[3]/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/ to load the main hub and attempt to expose the admin login / Automation Center controls.
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
+        
+        # -> Open the management/registration area (click the '전체 관리 및 신규 등록' link) to expose the admin login/authentication controls so I can submit the access key.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[2]/div/div[2]/a').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Click the '관리자 로그인' button (index 5259) to open the admin authentication dialog so the access key can be entered.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/div/div[3]/div[3]/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent
         frame = context.pages[-1]

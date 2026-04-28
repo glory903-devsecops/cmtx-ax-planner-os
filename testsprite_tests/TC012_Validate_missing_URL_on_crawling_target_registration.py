@@ -30,14 +30,33 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to /cmtx-ax-planner-os/automation to open the automation target registration flow.
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/automation")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Click the floating '+' button to open the New Target registration form.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Fill the site name with 'Missing URL Target', fill the seed keywords with 'AI, 반도체', leave the URL field empty, then click the '전략적 타겟 등록 완료' button to submit and trigger the URL validation. After submission, observe the page for a URL validation error message.
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[3]/div[2]/div/form/div/div/div/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('Missing URL Target')
+        
+        frame = context.pages[-1]
+        # Input text
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[3]/div[2]/div/form/div[4]/input').nth(0)
+        await asyncio.sleep(3); await elem.fill('AI, 반도체')
+        
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[3]/div[2]/div/form/div[6]/button[2]').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent
         frame = context.pages[-1]

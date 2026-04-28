@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: 📦 코드 체크아웃
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: 🐍 Python 3.11 설정
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@f67864f4051c5658e17ed3a1c9c0fbe352c62907
         with:
           python-version: '3.11'
           cache: 'pip'

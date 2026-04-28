@@ -152,6 +152,58 @@ export default function AutomationPage() {
               </div>
             )}
           </SectionCard>
+
+          {/* 실시간 인텔리전스 로그 터미널 */}
+          <AnimatePresence>
+            {(isSimulating || logs.length > 0) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="bg-slate-900 rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden mt-6"
+              >
+                <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/5">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-rose-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                    </div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Recursive Intelligence Pipeline</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-cmtx-blue-light animate-pulse">LIVE ANALYSIS</span>
+                  </div>
+                </div>
+                <div className="p-6 h-[240px] overflow-y-auto font-mono text-[11px] space-y-2.5 scrollbar-hide">
+                  {logs.map((log, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex gap-3"
+                    >
+                      <span className="text-slate-600 shrink-0">[{new Date().toLocaleTimeString('ko-KR', { hour12: false })}]</span>
+                      <span className={cn(
+                        "font-medium",
+                        log.includes("완료") ? "text-emerald-400" : 
+                        log.includes("실패") || log.includes("오류") ? "text-rose-400" :
+                        log.includes("분석") ? "text-cmtx-blue-light" : "text-slate-300"
+                      )}>
+                        {log}
+                      </span>
+                    </motion.div>
+                  ))}
+                  {isSimulating && (
+                    <div className="flex items-center gap-2 text-cmtx-blue-light">
+                      <span className="animate-bounce">_</span>
+                      <span className="text-[10px] italic">Deep-scanning for strategic links...</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="space-y-8">

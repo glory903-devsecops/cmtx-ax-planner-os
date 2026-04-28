@@ -50,15 +50,29 @@ export async function fetchGrants(): Promise<{ data: Grant[]; isLive: boolean }>
         .limit(20);
 
       if (!error && data && data.length > 0) {
-        return { data: data.map(toGrant), isLive: true };
+        const mapped = data.map(toGrant);
+        // 전략적 키워드 기반 가중치 정렬 (반도체, 소부장 우선)
+        const strategicKeywords = ["반도체", "소부장", "세라믹", "쿼츠", "공정", "EUV"];
+        const sorted = mapped.sort((a, b) => {
+          const aRelevance = strategicKeywords.filter(k => a.title.includes(k) || a.description?.includes(k)).length;
+          const bRelevance = strategicKeywords.filter(k => b.title.includes(k) || b.description?.includes(k)).length;
+          return bRelevance - aRelevance;
+        });
+        return { data: sorted, isLive: true };
       }
     } catch (e) {
       console.warn('[data-service] Supabase 오류, mock fallback:', e);
     }
   }
 
-  // fallback: mock 데이터 반환
-  return { data: GRANTS, isLive: false };
+  // fallback: mock 데이터 반환 (Mock 데이터도 정렬 적용)
+  const strategicKeywords = ["반도체", "소부장", "세라믹", "쿼츠", "공정", "EUV"];
+  const sortedMock = [...GRANTS].sort((a, b) => {
+    const aRelevance = strategicKeywords.filter(k => a.title.includes(k) || a.description?.includes(k)).length;
+    const bRelevance = strategicKeywords.filter(k => b.title.includes(k) || b.description?.includes(k)).length;
+    return bRelevance - aRelevance;
+  });
+  return { data: sortedMock, isLive: false };
 }
 
 /**

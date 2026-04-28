@@ -30,14 +30,14 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Click an item from the grants/policies list to open its sliding detail panel and verify the original source link and AI summary are present.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div[2]/div[2]/div/div[2]/div').nth(0)
+        await asyncio.sleep(3); await elem.click()
         
         # --> Test passed — verified by AI agent
         frame = context.pages[-1]

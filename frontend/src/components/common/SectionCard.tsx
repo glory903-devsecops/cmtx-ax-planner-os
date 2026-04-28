@@ -21,15 +21,16 @@ export function SectionCard({
   variant = "default",
 }: SectionCardProps) {
   const variants = {
-    default: "bg-white border-cmtx-border",
-    glass: "glass",
-    dark: "bg-slate-900 border-none",
+    default: "bg-white border-slate-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_4px_6px_-2px_rgba(0,0,0,0.05)]",
+    glass: "glass shadow-premium",
+    dark: "bg-slate-900 border-white/5 shadow-glow-blue",
   };
 
   return (
     <div
       className={cn(
-        "rounded-2xl border p-6 shadow-subtle transition-all",
+        "rounded-[2rem] border transition-all duration-300",
+        variant === "default" ? "p-8" : "p-6",
         variants[variant],
         className
       )}

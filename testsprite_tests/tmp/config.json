@@ -2,17 +2,17 @@
   "status": "init",
   "scope": "codebase",
   "type": "frontend",
-  "localEndpoint": "http://localhost:3000/",
-  "serverPort": 49313,
+  "localEndpoint": "http://localhost:3000/cmtx-ax-planner-os/",
+  "serverPort": 53336,
   "executionArgs": {
     "projectName": "cmtx-ax-planner-os",
     "projectPath": "/Users/glory1994/Library/CloudStorage/GoogleDrive-glory.lee903@gmail.com/내 드라이브/99.Develop/cmtx-ax-planner-os",
     "testIds": [],
-    "additionalInstruction": "Focus on verifying the admin login flow and the independent clickability of dashboard list items. Ensure that adding a crawling target shows the correct behavior for both guests (simulation) and admins (DB sync).",
+    "additionalInstruction": "Ensure all tests access the application via http://localhost:3000/cmtx-ax-planner-os/. The landing page redirects to /cmtx-ax-planner-os/gr-hub/. Test the admin login, individual item clickability on the dashboard, and the automation target registration flow.",
     "serverMode": "development",
     "envs": {
       "API_KEY": "sk-user-7NjWyvWwmm8tAk2EOdjilY9H30jLc64qrMxvkVREmN8p_FLprSCbzgvceeFYWu21Ja4jvOwI2PwOQrFH-ybWkMq4JqYnRO_Y-zfOb8UjDS3NWSm2R11ai859htR_iFkKuCc"
     }
   },
-  "proxy": "http://f93f599a-551d-4dae-9685-e278054bd7d4:R4MlJDlijzIfnJr9EEQXyDEIcJQMjfsf@tun.testsprite.com:8080"
+  "proxy": "http://d9fe9cba-b759-4aa4-9f38-5332873577df:pNDKcHBfBofve28ZcTeyKiU9bEHPBDEk@tun.testsprite.com:8080"
 }

@@ -30,19 +30,28 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/ax-planning to reach the AX Planning page (explicit navigation step).
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/ax-planning")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # --> Test passed — verified by AI agent
+        # -> Scroll the AX Planning page down to reveal creation controls, then click the control to start a new plan (likely the '전략 로드맵 자동 생성' button).
         frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Click the '전략 로드맵 자동 생성' button again to open the plan creation form/modal, then observe the visible input fields (title and details) before filling them.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # --> Assertions to verify final state
+        frame = context.pages[-1]
+        assert await frame.locator("xpath=//*[contains(., '저장되었습니다')]").nth(0).is_visible(), "The success confirmation '저장되었습니다' should be visible after saving the new plan.",
+        assert await frame.locator("xpath=//*[contains(., 'AX Test Plan')]").nth(0).is_visible(), "The new plan titled 'AX Test Plan' should appear in the plans list after saving.",
         await asyncio.sleep(5)
 
     finally:

@@ -30,19 +30,29 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to the AX planning page at /cmtx-ax-planner-os/ax-planning to begin creating a new plan.
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/ax-planning")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # --> Test passed — verified by AI agent
+        # -> Click the control to start a new plan (open the plan creation form). Target the '전략 로드맵 자동 생성' button (interactive element index 1102).
         frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Click the '전략 로드맵 자동 생성' button again to open the plan-creation form, then wait for the UI to settle.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # --> Assertions to verify final state
+        frame = context.pages[-1]
+        assert await frame.locator("xpath=//*[contains(., '제목을 입력해 주세요')]").nth(0).is_visible(), "The plan creation form should show a validation error asking to enter a title after attempting to save without a title"
         current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert '/cmtx-ax-planner-os/ax-planning' in current_url, "The page should remain on the plan creation view after attempting to save with missing required inputs"
         await asyncio.sleep(5)
 
     finally:

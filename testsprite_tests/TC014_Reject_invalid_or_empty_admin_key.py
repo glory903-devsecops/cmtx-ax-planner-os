@@ -30,19 +30,13 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # --> Test passed — verified by AI agent
+        # --> Assertions to verify final state
         frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert await frame.locator("xpath=//*[contains(., 'Invalid access key')]").nth(0).is_visible(), "The access key validation error should be visible after submitting an incorrect admin key.",
+        assert not await frame.locator("xpath=//*[contains(., 'Admin mode')]").nth(0).is_visible(), "The admin mode indicator should not be visible in the sidebar after submitting an incorrect admin key."]}
         await asyncio.sleep(5)
 
     finally:

@@ -44,6 +44,14 @@
   --shadow-subtle: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
   --shadow-premium: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --shadow-glow-blue: 0 0 20px -5px rgba(29, 78, 216, 0.3);
+
+  --animate-shimmer: shimmer 2s infinite;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 /* Base font size — all Tailwind rem units scale from this */

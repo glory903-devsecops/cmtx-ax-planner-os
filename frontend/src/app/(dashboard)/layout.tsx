@@ -26,7 +26,7 @@ export default function DashboardLayout({
 
       {/* ── Desktop/Tablet Sidebar (hover reveal) ─────────────────── */}
       <div
-        className="hidden md:flex fixed left-0 top-0 h-screen z-50 group/sidebar-container"
+        className="hidden sm:flex fixed left-0 top-0 h-screen z-50 group/sidebar-container"
         onMouseEnter={() => setIsSidebarOpen(true)}
         onMouseLeave={() => setIsSidebarOpen(false)}
       >
@@ -45,8 +45,8 @@ export default function DashboardLayout({
         <Sidebar isOpen={isSidebarOpen} />
       </div>
 
-      {/* Mobile Top Header (Visible only on < 768px) */}
-      <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-cmtx-border z-50 px-6 flex items-center justify-between">
+      {/* Mobile Top Header (Visible only on < 640px) */}
+      <header className="sm:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-cmtx-border z-50 px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-cmtx-blue rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-cmtx-blue/20">
             C
@@ -63,9 +63,9 @@ export default function DashboardLayout({
         </button>
       </header>
 
-      {/* Mobile Overlay Menu (Visible only on < 768px) */}
+      {/* Mobile Overlay Menu (Visible only on < 640px) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-white pt-20 px-6 overflow-y-auto pb-8">
+        <div className="sm:hidden fixed inset-0 z-40 bg-white pt-20 px-6 overflow-y-auto pb-8">
           {/* ... (모바일 메뉴 동일) */}
           <nav className="space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">핵심 플랫폼</p>
@@ -122,16 +122,16 @@ export default function DashboardLayout({
       <main
         className={cn(
           "flex-1 min-h-screen transition-all duration-300",
-          "pt-16 md:pt-0",
-          isSidebarOpen ? "md:ml-64" : "md:ml-0"
+          "pt-16 sm:pt-0",
+          isSidebarOpen ? "sm:ml-64" : "sm:ml-0"
         )}
       >
-        <div className="p-6 md:p-10 max-w-7xl mx-auto">
+        <div className="p-6 sm:p-10 max-w-7xl mx-auto">
           {children}
         </div>
 
         {/* Mobile Quick Insight FAB */}
-        <button className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-cmtx-blue text-white rounded-full shadow-2xl shadow-cmtx-blue/40 flex items-center justify-center z-50 active:scale-90 transition-transform">
+        <button className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-cmtx-blue text-white rounded-full shadow-2xl shadow-cmtx-blue/40 flex items-center justify-center z-50 active:scale-90 transition-transform">
           <Plus className="w-8 h-8" />
         </button>
       </main>

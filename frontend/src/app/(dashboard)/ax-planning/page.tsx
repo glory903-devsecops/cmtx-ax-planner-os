@@ -5,12 +5,15 @@ import { Compass, Zap, MessageSquare, Map, Activity, Users, ExternalLink, Chevro
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { OpportunityCard, FrictionMap } from "@/components/features/AXPlanningComponents";
+import { RoadmapGenerator } from "@/components/features/RoadmapGenerator";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { OPPORTUNITIES, FEEDBACKS } from "@/lib/mock-data";
 import Link from "next/link";
 import { Badge } from "@/components/common/Badge";
 
 export default function AXPlanningPage() {
+  const [isGeneratorOpen, setIsGeneratorOpen] = React.useState(false);
+
   return (
     <PageTransition>
       <PageHeader 
@@ -18,11 +21,19 @@ export default function AXPlanningPage() {
         subtitle="AI Transformation 로드맵 및 혁신 기획 보드"
         icon={<Compass className="w-6 h-6" />}
         actions={
-          <button className="px-4 py-2 bg-cmtx-navy text-white rounded-lg text-xs font-bold hover:bg-cmtx-navy/90 transition-all flex items-center gap-2">
+          <button 
+            onClick={() => setIsGeneratorOpen(true)}
+            className="px-4 py-2 bg-cmtx-navy text-white rounded-lg text-xs font-bold hover:bg-cmtx-navy/90 transition-all flex items-center gap-2 active:scale-95"
+          >
             <Zap className="w-4 h-4" />
             전략 로드맵 자동 생성
           </button>
         }
+      />
+
+      <RoadmapGenerator 
+        isOpen={isGeneratorOpen} 
+        onClose={() => setIsGeneratorOpen(false)} 
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

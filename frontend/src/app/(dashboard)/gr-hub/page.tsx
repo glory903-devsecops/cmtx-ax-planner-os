@@ -11,8 +11,11 @@ import type { Grant, PolicyItem, GRTrendSignal } from "@/lib/mock-data";
 import { DetailPanel, DetailSection, RelatedLinkItem } from "@/components/common/DetailPanel";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { exportToCSV } from "@/lib/export-service";
+import { Download, Bookmark, CheckCircle2 } from "lucide-react";
 
 import { Skeleton, CardSkeleton } from "@/components/common/Skeleton";
+import { RoadmapGenerator } from "@/components/features/RoadmapGenerator";
 
 export default function GRHubOverviewPage() {
   const [grants, setGrants] = React.useState<Grant[]>([]);
@@ -24,6 +27,26 @@ export default function GRHubOverviewPage() {
   // 상세 패널 상태
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
   const [panelType, setPanelType] = React.useState<"grant" | "policy" | "trend" | null>(null);
+  const [isGeneratorOpen, setIsGeneratorOpen] = React.useState(false);
+
+  // 스크랩 상태
+  const [scrappedItems, setScrappedItems] = React.useState<any[]>([]);
+  const [showExportSuccess, setShowExportSuccess] = React.useState(false);
+
+  const toggleScrap = (item: any) => {
+    setScrappedItems(prev => {
+      const exists = prev.find(p => p.id === item.id || p.title === item.title);
+      if (exists) return prev.filter(p => p.id !== item.id && p.title !== item.title);
+      return [...prev, item];
+    });
+  };
+
+  const handleExport = () => {
+    const dataToExport = scrappedItems.length > 0 ? scrappedItems : [...grants, ...policies];
+    exportToCSV(dataToExport, "CMTX_Strategy_Data");
+    setShowExportSuccess(true);
+    setTimeout(() => setShowExportSuccess(false), 3000);
+  };
 
   React.useEffect(() => {
     async function loadData() {
@@ -68,16 +91,111 @@ export default function GRHubOverviewPage() {
         subtitle="정책 대응·정부 협력·지원사업 확보·산업 동향 통합 운영 센터"
         icon={<Gavel className="w-6 h-6" />}
         actions={
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-xs font-black text-emerald-700 uppercase tracking-wider">24시간 자동 수집 중</span>
+          <div className="flex items-center gap-3">
+            {scrappedItems.length > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-50 border border-violet-200 rounded-xl animate-in fade-in slide-in-from-right-4">
+                <span className="text-[10px] font-black text-violet-600 uppercase">{scrappedItems.length}개 선택됨</span>
+              </div>
+            )}
+            <button 
+              onClick={handleExport}
+              className="px-4 py-2 bg-cmtx-navy text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg shadow-cmtx-navy/20 active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              엑셀 내보내기 (CSV)
+            </button>
+            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-xs font-black text-emerald-700 uppercase tracking-wider">24H 수집 중</span>
+            </div>
           </div>
         }
       />
+      <RoadmapGenerator 
+        isOpen={isGeneratorOpen} 
+        onClose={() => setIsGeneratorOpen(false)} 
+      />
 
+      {/* ─── 오늘의 핵심 전략 브리핑 (미래전략실 전용) ─── */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-10 p-10 bg-gradient-to-br from-slate-900 via-cmtx-navy to-slate-800 rounded-[3rem] text-white relative overflow-hidden shadow-2xl border border-white/5"
+      >
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cmtx-blue/10 blur-[120px] -mr-64 -mt-64" />
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="px-4 py-1.5 bg-cmtx-blue/20 border border-cmtx-blue/30 rounded-full backdrop-blur-sm">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-cmtx-blue-light">Strategic Briefing</span>
+              </div>
+              <div className="h-1 w-1 rounded-full bg-slate-600" />
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-3xl font-black tracking-tight leading-[1.15]">
+                반도체 소부장 국산화 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cmtx-blue-light to-blue-400">2차 로드맵</span> 공고 및 <br/>
+                EU RoHS 규제 대응 체계 수립 가속화
+              </h2>
+              <p className="text-base text-slate-400 font-medium leading-relaxed max-w-3xl">
+                오늘 수집된 140건의 인텔리전스 중 **3건**의 Critical 시그널이 감지되었습니다. 
+                특히 산업부의 세제 혜택 확대안은 당사 평택 공장 증설 계획과 직결되는 사안으로, 
+                이번 주 내로 재경팀과의 합동 검토가 권고됩니다.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-black text-cmtx-blue-light uppercase tracking-wider">정책 대응 지수</span>
+                <span className="text-lg font-black italic">88.4%</span>
+              </div>
+              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "88.4%" }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-cmtx-blue to-cmtx-blue-light shadow-[0_0_15px_rgba(59,130,246,0.5)]" 
+                />
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsGeneratorOpen(true)}
+              className="w-full py-5 bg-white text-cmtx-navy rounded-3xl font-black text-sm hover:bg-slate-100 transition-all flex items-center justify-center gap-3 group shadow-xl shadow-white/5 active:scale-[0.98]"
+            >
+              전략 로드맵 생성기 가동 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+
+      {/* ─── 전략 성과 지표 (Strategic Scorecard) ─── */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {[
+          { label: "공모 당선율 (Success Rate)", value: "72.4%", trend: "+5.2%", color: "text-emerald-500", bg: "bg-emerald-50" },
+          { label: "규제 리스크 대응률", value: "94.0%", trend: "Stable", color: "text-cmtx-blue", bg: "bg-blue-50" },
+          { label: "정부 지원금 확보 (2026)", value: "32.8억", trend: "Target 45억", color: "text-violet-500", bg: "bg-violet-50" },
+          { label: "부처 네트워킹 지수", value: "A+", trend: "Top Tier", color: "text-amber-500", bg: "bg-amber-50" },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 + i * 0.05 }}
+            className={cn("p-6 rounded-[2rem] border border-slate-100 shadow-sm", stat.bg)}
+          >
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+            <div className="flex items-baseline gap-2">
+              <span className={cn("text-2xl font-black italic", stat.color)}>{stat.value}</span>
+              <span className="text-[10px] font-bold text-slate-400">{stat.trend}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
       {/* ─── 메인 그리드 ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -160,7 +278,13 @@ export default function GRHubOverviewPage() {
                   </div>
                   {/* 내용 */}
                   <div className={cn("flex-1 pb-3", i < GOVT_ACTIVITIES.length - 1 ? "" : "")}>
-                    <div className="p-3 bg-slate-50 border border-transparent rounded-xl hover:border-violet-200 hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                    <div 
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setPanelType("cooperation" as any);
+                      }}
+                      className="p-3 bg-slate-50 border border-transparent rounded-xl hover:border-violet-200 hover:bg-white hover:shadow-sm transition-all cursor-pointer"
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <span className={cn("inline-block text-[10px] font-black px-2 py-0.5 rounded border mb-1", statusColor[item.status] || "")}>
@@ -274,7 +398,9 @@ export default function GRHubOverviewPage() {
                         onClick={() => pillar.onItemClick(item)}
                         className="flex items-center justify-between p-2.5 rounded-xl cursor-pointer group/item hover:bg-slate-50 hover:shadow-sm border border-transparent hover:border-slate-100 transition-all duration-200"
                       >
-                        <div className="flex items-start gap-3 min-w-0">
+                        <div 
+                          className="flex items-start gap-3 min-w-0 flex-1"
+                        >
                           <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0",
                             isUrgent ? "bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,0.5)]" : "bg-slate-300"
                           )} />
@@ -289,7 +415,22 @@ export default function GRHubOverviewPage() {
                             </div>
                           </div>
                         </div>
-                        <ArrowRight className="w-3 h-3 text-slate-300 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0.5 transition-all shrink-0 ml-2" />
+                        
+                        {/* 스크랩 버튼 */}
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleScrap(item);
+                          }}
+                          className={cn(
+                            "ml-2 p-1.5 rounded-lg transition-all",
+                            scrappedItems.find(p => p.id === item.id || p.title === item.title)
+                              ? "text-cmtx-blue bg-cmtx-blue/10"
+                              : "text-slate-300 hover:text-cmtx-blue hover:bg-slate-100"
+                          )}
+                        >
+                          <Bookmark className={cn("w-3.5 h-3.5", scrappedItems.find(p => p.id === item.id || p.title === item.title) ? "fill-current" : "")} />
+                        </button>
                       </div>
                     );
                   })}
@@ -359,54 +500,108 @@ export default function GRHubOverviewPage() {
             </div>
             
             <DetailSection title="지원 요건 및 자격" icon={Info}>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1 text-xs font-medium text-slate-600">
                 <li>중소/중견기업 (반도체 소부장 분야)</li>
                 <li>최근 3년 내 R&D 실적 보유 기업</li>
                 <li>DX 선도 모델 제시 가능 기업</li>
               </ul>
             </DetailSection>
 
-            <DetailSection title="AI RECURSIVE SUMMARY" icon={Rocket}>
-              <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                <p className="text-[11px] font-bold text-blue-800 leading-relaxed">
-                  본 과제는 실시간 데이터 수집 결과 **{selectedItem.agency}**에서 주관하는 핵심 사업입니다. 
-                  기업의 DX 역량 지표가 선정 확률에 큰 영향을 미칠 것으로 분석됩니다.
-                </p>
-              </div>
-            </DetailSection>
-
-            <DetailSection title="원본 소스 링크" icon={ExternalLink}>
-              <RelatedLinkItem 
-                title="공식 공고 페이지" 
-                url={selectedItem.sourceUrl} 
-                target="_blank"
-                rel="noopener noreferrer"
-                type="policy" 
-              />
-            </DetailSection>
+            {selectedItem.clauses && (
+              <DetailSection title="핵심 독소 조항 및 특이사항" icon={Rocket}>
+                <div className="space-y-3">
+                  {selectedItem.clauses.map((c: any, i: number) => (
+                    <div key={i} className="p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
+                      <p className="text-[10px] font-black text-amber-700 uppercase mb-1">{c.title}</p>
+                      <p className="text-xs text-slate-600 font-medium leading-relaxed">{c.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </DetailSection>
+            )}
           </div>
         )}
 
         {panelType === "policy" && (
           <div className="space-y-6">
-            <DetailSection title="규제 요약" icon={ShieldAlert}>
-              <p>{selectedItem.description || "해당 정책 및 규제에 대한 상세 분석이 진행 중입니다."}</p>
+            <DetailSection title="규제 분석 리포트" icon={ShieldAlert}>
+              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                <p className="text-sm font-bold text-cmtx-navy leading-relaxed">{selectedItem.summary}</p>
+                <div className="p-3 bg-white rounded-xl border border-slate-100">
+                  <p className="text-[10px] font-black text-cmtx-blue uppercase mb-1">예상 영향도 (Impact Analysis)</p>
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed">{selectedItem.impact}</p>
+                </div>
+              </div>
             </DetailSection>
-            <DetailSection title="대응 가이드" icon={Info}>
-              <p className="font-bold text-rose-600">※ 현재 대응 지침 수립 중</p>
+            
+            <DetailSection title="실무 대응 가이드라인" icon={CheckCircle2}>
+              <div className="p-5 bg-rose-50 border border-rose-100 rounded-2xl">
+                <p className="text-xs font-bold text-rose-700 leading-relaxed">
+                  {selectedItem.actionRequired || "현재 전략실에서 법무팀과 협조하여 대응 가이드를 수립 중입니다."}
+                </p>
+              </div>
             </DetailSection>
           </div>
         )}
 
         {panelType === "trend" && (
           <div className="space-y-6">
-            <DetailSection title="시그널 상세" icon={TrendingUp}>
-              <p>영향도: {selectedItem.impact}</p>
-              <p>감지 시각: {selectedItem.time}</p>
+            <DetailSection title="인텔리전스 시그널 상세" icon={TrendingUp}>
+              <div className="p-6 bg-slate-900 rounded-[2rem] text-white space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black text-cmtx-blue-light uppercase tracking-widest">{selectedItem.category}</span>
+                  <span className="text-[10px] text-slate-500 font-bold">{selectedItem.time} 감지</span>
+                </div>
+                <p className="text-sm font-bold leading-relaxed">{selectedItem.summary}</p>
+              </div>
             </DetailSection>
           </div>
         )}
+
+        {panelType === ("cooperation" as any) && (
+          <div className="space-y-6">
+            <div className="p-6 bg-violet-50 rounded-[2rem] border border-violet-100 space-y-4">
+              <div className="flex justify-between items-center">
+                <Badge variant="strategic">{selectedItem.type}</Badge>
+                <span className="text-[10px] text-violet-500 font-black tracking-widest">{selectedItem.date}</span>
+              </div>
+              <h4 className="text-lg font-black text-cmtx-navy leading-tight">{selectedItem.title}</h4>
+            </div>
+
+            <DetailSection title="주요 협의 사항" icon={Info}>
+              <p className="text-sm font-bold text-slate-600 leading-relaxed">
+                {selectedItem.ministry} 관계자와의 {selectedItem.type}를 통해 
+                반도체 소부장 클러스터 참여 및 인프라 지원에 대한 심층 협의가 진행되었습니다.
+              </p>
+            </DetailSection>
+
+            {selectedItem.followUp && (
+              <DetailSection title="후속 조치 (Follow-up)" icon={Zap}>
+                <div className="p-5 bg-cmtx-navy rounded-2xl text-white">
+                  <p className="text-xs font-medium leading-relaxed opacity-90">{selectedItem.followUp}</p>
+                </div>
+              </DetailSection>
+            )}
+          </div>
+        )}
       </DetailPanel>
+
+      {/* Export Success Notification */}
+      <AnimatePresence>
+        {showExportSuccess && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 bg-cmtx-navy text-white rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10"
+          >
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-xs font-bold">전략 리포트(CSV)가 성공적으로 추출되었습니다.</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </PageTransition>
   );
 }

@@ -179,18 +179,26 @@ export function Sidebar({ isOpen }: SidebarProps) {
           <div className="absolute inset-0 bg-cmtx-blue/5 opacity-0 group-hover/user:opacity-100 transition-opacity" />
           <div className="flex items-center gap-3 relative z-10">
             <div className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center ring-2 ring-white/5 transition-all",
-              isLoggedIn ? "bg-cmtx-blue shadow-lg shadow-cmtx-blue/20" : "bg-slate-700"
+              "w-10 h-10 rounded-xl flex items-center justify-center ring-2 transition-all duration-500",
+              isLoggedIn 
+                ? "bg-cmtx-blue shadow-[0_0_20px_rgba(59,130,246,0.5)] ring-cmtx-blue/50" 
+                : "bg-slate-700 ring-white/5"
             )}>
-              <User className={cn("w-5 h-5", isLoggedIn ? "text-white" : "text-slate-400")} />
+              <User className={cn("w-5 h-5", isLoggedIn ? "text-white animate-pulse" : "text-slate-400")} />
             </div>
             <div className="overflow-hidden flex-1">
-              <p className="text-sm font-bold truncate">
+              <p className={cn(
+                "text-sm font-bold truncate transition-colors",
+                isLoggedIn ? "text-white" : "text-slate-300"
+              )}>
                 {isLoggedIn ? "관리자 (CMTX)" : "게스트 모드"}
               </p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
-                {isLoggedIn ? "엔터프라이즈 등급" : "조회 전용 권한"}
-              </p>
+              <div className="flex items-center gap-1.5">
+                {isLoggedIn && <div className="w-1 h-1 rounded-full bg-emerald-400 animate-ping" />}
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                  {isLoggedIn ? "Enterprise Strategy" : "Read-Only Access"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -205,10 +213,11 @@ export function Sidebar({ isOpen }: SidebarProps) {
           </button>
         ) : (
           <button 
+            id="admin-login-btn"
             onClick={() => setShowLoginModal(true)}
-            className="flex items-center gap-3 text-cmtx-blue-light hover:text-white transition-colors text-xs w-full font-bold px-4"
+            className="flex items-center gap-3 text-cmtx-blue-light hover:text-white transition-all group/login text-xs w-full font-bold px-4 py-2 rounded-lg hover:bg-white/5"
           >
-            <LogIn className="w-4 h-4" />
+            <LogIn className="w-4 h-4 group-hover/login:translate-x-1 transition-transform" />
             관리자 로그인
           </button>
         )}

@@ -30,19 +30,28 @@ async def run_test():
         page = await context.new_page()
 
         # Interact with the page elements to simulate user flow
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to http://localhost:3000/cmtx-ax-planner-os/
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
+        # -> Navigate to the AX Planning page at /cmtx-ax-planner-os/ax-planning
+        await page.goto("http://localhost:3000/cmtx-ax-planner-os/ax-planning")
         
-        # -> Navigate to http://localhost:3000/
-        await page.goto("http://localhost:3000/")
-        
-        # --> Test passed — verified by AI agent
+        # -> Click the control to start a new plan (button labeled '전략 로드맵 자동 생성').
         frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # -> Click the '전략 로드맵 자동 생성' button again to open the plan-creation modal, then wait for the UI to render the modal's input fields.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/div[2]/main/div/div/div/div/div[2]/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # --> Assertions to verify final state
+        frame = context.pages[-1]
+        assert await frame.locator("xpath=//*[contains(., '계획 제목')]").nth(0).is_visible(), "The plan detail view should display the plan title after opening the plan"
+        assert await frame.locator("xpath=//*[contains(., '전략 로드맵 자동 생성')]").nth(0).is_visible(), "The planning dashboard should show the 전략 로드맵 자동 생성 control after returning to the dashboard"
         await asyncio.sleep(5)
 
     finally:
