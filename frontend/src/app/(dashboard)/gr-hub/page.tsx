@@ -26,7 +26,7 @@ export default function GRHubOverviewPage() {
 
   // 상세 패널 상태
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
-  const [panelType, setPanelType] = React.useState<"grant" | "policy" | "trend" | null>(null);
+  const [panelType, setPanelType] = React.useState<"grant" | "policy" | "trend" | "cooperation" | null>(null);
   const [isGeneratorOpen, setIsGeneratorOpen] = React.useState(false);
 
   // 스크랩 상태
@@ -281,7 +281,7 @@ export default function GRHubOverviewPage() {
                     <div 
                       onClick={() => {
                         setSelectedItem(item);
-                        setPanelType("cooperation" as any);
+                        setPanelType("cooperation");
                       }}
                       className="p-3 bg-slate-50 border border-transparent rounded-xl hover:border-violet-200 hover:bg-white hover:shadow-sm transition-all cursor-pointer"
                     >
@@ -558,7 +558,7 @@ export default function GRHubOverviewPage() {
           </div>
         )}
 
-        {panelType === ("cooperation" as any) && (
+        {panelType === "cooperation" && (
           <div className="space-y-6">
             <div className="p-6 bg-violet-50 rounded-[2rem] border border-violet-100 space-y-4">
               <div className="flex justify-between items-center">
