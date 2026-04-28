@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, Building2, CalendarDays, Rocket, Info, ExternalLink } from "lucide-react";
+import { Gavel, ShieldAlert, Handshake, TrendingUp, ArrowRight, Building2, CalendarDays, Rocket, Info, ExternalLink, Zap } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { GOVT_ACTIVITIES } from "@/lib/mock-data";
